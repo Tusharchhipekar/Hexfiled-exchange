@@ -4,10 +4,9 @@ const int = z.number().int();
 const side = z.enum(["buy", "sell"]);
 
 export const SignupApiRequestSchema = z.object({
-  name: z.string().optional(),
   username: z.string().min(1),
   password: z.string().min(1),
-  email: email().optional(),
+  email: z.string().email().optional(),
 });
 
 export const SigninApiRequestSchema = z.object({
