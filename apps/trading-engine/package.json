@@ -1,0 +1,23 @@
+{
+  "name": "trading-engine",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@repo/types": "workspace:*",
+    "@repo/redis": "workspace:*",
+    "@repo/db-prisma": "workspace:*",
+    "@repo/timescaledb": "workspace:*",
+    "@types/express": "^5.0.6",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "sorted-btree": "^2.1.0",
+    "zod": "^4.4.3"
+  }
+}
