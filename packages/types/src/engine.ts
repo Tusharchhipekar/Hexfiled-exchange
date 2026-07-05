@@ -1,101 +1,186 @@
-import { getRedisClient } from "@repo/redis";
-import type {
-  EngineCommandType,
-  EnginePayload,
-  EngineResponse,
-  REDIS_KEYS,
-} from "@repo/types";
+import BTree from "sorted-btree";
 
-const writeClientPromise = getRedisClient();
-const readClientPromise = getRedisClient();
+type OrderType = "market" | "limit";
+type Side = "buy" | "sell";
+type OrderStatus = "open" | "filled" | "partially_filled" | "cancelled";
+type PositionSide = "long" | "short";
 
-type PendingRequest = {
-  resolve: (value: unknown) => void;
-  reject: (reason: Error) => void;
-  timeout: ReturnType<typeof setTimeout>;
+export type EngineCommandType =
+  | "create_order"
+  | "cancel_order"
+  | "add_balance"
+  | "get_balance"
+  | "get_depth"
+  | "update_index_price"
+  | "create_market"
+  | "funding_rate"
+  | "get_markets";
+
+export type updateIndexPricePayload = {
+  symbol: string;
+  price: number;
 };
 
-const loopbackResponses = new Map<string, PendingRequest>();
-const responseBe = crypto.randomUUID();
-let lastGlobalId = "$";
-let lastBackendId = "$";
-
-export const loopback = async (
-  type: EngineCommandType,
-  payload: EnginePayload,
-) => {
-  const correlationId = crypto.randomUUID();
-
-  return new Promise(async (resolve, reject) => {
-    const redis = await writeClientPromise;
-
-    const timeout = setTimeout(() => {
-      loopbackResponses.delete(correlationId);
-      reject(new Error("Engine response timed out"));
-    }, 10_000);
-
-    loopbackResponses.set(correlationId, { resolve, reject, timeout });
-
-    try {
-      await redis.xAdd(REDIS_KEYS.engineCommands, "*", {
-        type,
-        correlationId,
-        responseQueue: REDIS_KEYS.responseQueue(responseBe),
-        payload: JSON.stringify(payload),
-      });
-    } catch (err) {
-      clearTimeout(timeout);
-      loopbackResponses.delete(correlationId);
-      console.error("Failed to send command to engine:", err);
-      reject(new Error("Failed to send to engine"));
-    }
-  });
+export type GetDepthPayload = {
+  symbol: string;
 };
 
-async function waitForResponse() {
-  const redis = await readClientPromise;
+export type Market = {
+  marketId: string;
+  maxLeverage: number;
+  minQty: number;
+  symbol: string;
+};
 
-  while (true) {
-    const streams = await redis.xRead(
-      [
-        { key: REDIS_KEYS.engineEvents, id: lastGlobalId },
-        { key: REDIS_KEYS.responseQueue(responseBe), id: lastBackendId },
-      ],
-      { BLOCK: 0, COUNT: 1 },
-    );
+export type CreateMarketPayload = {
+  marketId: string;
+  symbol: string;
+  minQty: number;
+  maxLeverage: number;
+};
 
-    if (!streams) continue;
+export type RestingOrder = {
+  userId: string;
+  orderId: string;
+  status: OrderStatus;
+  qty: number;
+  filledQty: number;
+  margin: number;
+  leverage: number;
+};
 
-    for (const stream of streams) {
-      for (const msg of stream.messages) {
-        if (stream.name === REDIS_KEYS.engineEvents) {
-          lastGlobalId = msg.id;
-        } else {
-          lastBackendId = msg.id;
-        }
+export type Fill = {
+  fillId: string;
+  makerUserId: string;
+  takerUserId: string;
+  makerOrderId: string;
+  takerOrderId: string;
+  makerSide: Side;
+  qty: number;
+  price: number;
+  symbol: string;
+  createdAt: number;
+};
 
-        const raw = msg.message;
-        const engineResponse: EngineResponse = {
-          type: raw.type as EngineCommandType,
-          correlationId: raw.correlationId,
-          ok: raw.ok === "true",
-          data: raw.data ? JSON.parse(raw.data) : undefined,
-          error: raw.error || undefined,
-        };
-        const pending = loopbackResponses.get(engineResponse.correlationId);
-        if (!pending) continue;
+export type OrderRecord = {
+  orderId: string;
+  marketId: string;
+  side: Side;
+  orderType: OrderType;
+  status: OrderStatus;
+  userId: string;
+  symbol: string;
+  qty: number;
+  filledQty: number;
+  margin: number;
+  leverage: number;
+  price: number;
+  fills: Fill[];
+};
 
-        clearTimeout(pending.timeout);
-        engineResponse.ok
-          ? pending.resolve(engineResponse.data)
-          : pending.reject(new Error(engineResponse.error ?? "EngineError"));
-        loopbackResponses.delete(engineResponse.correlationId);
-      }
+export type Position = {
+  userId: string;
+  positionSide: PositionSide;
+  liquidationPrice: number;
+  symbol: string;
+  qty: number;
+  margin: number;
+  averagePrice: number;
+};
+
+export type updatePositionPayload = {
+  userId: string;
+  symbol: string;
+  positionSide: PositionSide;
+  fillQty: number;
+  fillPrice: number;
+  fillMargin: number;
+  leverage: number;
+};
+export type Balance = {
+  available: number;
+  locked: number;
+};
+
+export type Orderbook = {
+  asks: BTree<number, RestingOrder[]>;
+  bids: BTree<number, RestingOrder[]>;
+  lastTradedPrice: number;
+};
+
+export type createOrderPayload =
+  | {
+      userId: string;
+      symbol: string;
+      orderType: "limit";
+      side: Side;
+      price: number;
+      qty: number;
+      leverage: number;
     }
-  }
+  | {
+      userId: string;
+      symbol: string;
+      orderType: "market";
+      side: Side;
+      qty: number;
+      leverage: number;
+      slippageBps: number;
+    };
+
+export type getBalancePayload = {
+  userId: string;
+};
+
+export type cancelOrderPayload = {
+  userId: string;
+  orderId: string;
+};
+
+export interface EngineResponse {
+  type: EngineCommandType;
+  correlationId: string;
+  ok: boolean;
+  data?: unknown;
+  error?: string;
 }
 
-waitForResponse().catch((err) => {
-  console.error("Loopback response listener crashed:", err);
-  process.exit(1);
-});
+export interface addBalancePayload {
+  userId: string;
+  amount: number;
+}
+
+export type EnginePayload =
+  | createOrderPayload
+  | cancelOrderPayload
+  | addBalancePayload
+  | CreateMarketPayload
+  | getBalancePayload;
+
+export interface EngineRequest {
+  correlationId: string;
+  type: EngineCommandType;
+  payload: EnginePayload;
+  responseQueue: string;
+}
+
+export type DepthDiff = {
+  symbol: string;
+  firstUpdateId: number;
+  finalUpdateId: number;
+  prevUpdateId: number;
+  bids: [number, number][];
+  asks: [number, number][];
+};
+
+export type CreateOrderResponse = {
+  order: OrderRecord;
+  fills: Fill[];
+  makerOrders: OrderRecord[];
+  depthDiff: DepthDiff;
+};
+
+export type CancelOrderResponse = {
+  order: OrderRecord;
+  depthDiff: DepthDiff;
+};

@@ -5,8 +5,8 @@ import type {
   EngineResponse,
 } from "@repo/types";
 import { REDIS_KEYS } from "@repo/types";
-
-const clientPromise = getRedisClient();
+const writeClientPromise = getRedisClient();
+const readClientPromise = getRedisClient();
 
 type PendingRequest = {
   resolve: (value: unknown) => void;
@@ -26,7 +26,7 @@ export const loopback = async (
   const correlationId = crypto.randomUUID();
 
   return new Promise(async (resolve, reject) => {
-    const redis = await clientPromise;
+    const redis = await writeClientPromise;
 
     const timeout = setTimeout(() => {
       loopbackResponses.delete(correlationId);
@@ -42,16 +42,17 @@ export const loopback = async (
         responseQueue: REDIS_KEYS.responseQueue(responseBe),
         payload: JSON.stringify(payload),
       });
-    } catch {
+    } catch (err) {
       clearTimeout(timeout);
       loopbackResponses.delete(correlationId);
+      console.error("Failed to send command to engine:", err);
       reject(new Error("Failed to send to engine"));
     }
   });
 };
 
 async function waitForResponse() {
-  const redis = await clientPromise;
+  const redis = await readClientPromise;
 
   while (true) {
     const streams = await redis.xRead(
@@ -74,14 +75,26 @@ async function waitForResponse() {
 
         const raw = msg.message;
         const engineResponse: EngineResponse = {
+          type: raw.type as EngineCommandType,
           correlationId: raw.correlationId,
           ok: raw.ok === "true",
           data: raw.data ? JSON.parse(raw.data) : undefined,
-          error: raw.error,
+          error: raw.error || undefined,
         };
         const pending = loopbackResponses.get(engineResponse.correlationId);
         if (!pending) continue;
+
+        clearTimeout(pending.timeout);
+        engineResponse.ok
+          ? pending.resolve(engineResponse.data)
+          : pending.reject(new Error(engineResponse.error ?? "EngineError"));
+        loopbackResponses.delete(engineResponse.correlationId);
       }
     }
   }
 }
+
+waitForResponse().catch((err) => {
+  console.error("Loopback response listener crashed:", err);
+  process.exit(1);
+});
