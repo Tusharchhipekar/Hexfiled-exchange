@@ -5,6 +5,7 @@
         "ORDERBOOKS",
         "Postion",
         "respone",
+        "serializedbalances",
         "Solana",
         "timescaledb"
     ]
