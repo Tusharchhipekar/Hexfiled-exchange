@@ -64,10 +64,10 @@ export const getKLinesApiSchema = z.object({
   limit: z.coerce.number().int().min(1).max(1000).default(200),
 });
 
-export type TSignupApi = z.infer<typeof SignupApiRequestSchema>;
-export type TSigninApi = z.infer<typeof SigninApiRequestSchema>;
-export type TCreateOrderApi = z.infer<typeof CreateOrderApiRequestSchema>;
-export type TCreateMarketApi = z.infer<typeof CreateMarketApiRequestSchema>;
-export type TAddBalanceApi = z.infer<typeof AddBalanceApiSchema>;
-export type TOrderParams = z.infer<typeof OrderParamsSchema>;
-export type TDepthParams = z.infer<typeof DepthParamsSchema>;
+export type SignupApi = z.infer<typeof SignupApiRequestSchema>;
+export type SigninApi = z.infer<typeof SigninApiRequestSchema>;
+export type CreateOrderApi = z.infer<typeof CreateOrderApiRequestSchema>;
+export type CreateMarketApi = z.infer<typeof CreateMarketApiRequestSchema>;
+export type AddBalanceApi = z.infer<typeof AddBalanceApiSchema>;
+export type OrderParams = z.infer<typeof OrderParamsSchema>;
+export type DepthParams = z.infer<typeof DepthParamsSchema>;
