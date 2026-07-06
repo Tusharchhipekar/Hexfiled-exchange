@@ -18,8 +18,8 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
         const fillQty = Math.min(remainingFillQty, remainingQty);
 
         fills.push({
-          symbol: order.symbol,
           fillId: crypto.randomUUID(),
+          symbol: order.symbol,
           qty: fillQty,
           price: askPrice,
           makerOrderId: restingOrder.orderId,
@@ -28,16 +28,19 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
           takerUserId: order.userId,
           makerSide: "sell",
         });
+
+        //update filled qty
         restingOrder.filledQty += fillQty;
         remainingQty -= fillQty;
         totalCost += fillQty * askPrice;
 
-        if (restingOrder.filledQty == restingOrder.qty)
+        //update restingOrder's status
+        if (restingOrder.filledQty === restingOrder.qty)
           restingOrder.status = "filled";
-        else if (restingOrder.filledQty < restingOrder.qty)
-          restingOrder.status = "partially_filled";
-        else restingOrder.status = "open";
+        else if (restingOrder.filledQty === 0) restingOrder.status = "open";
+        else restingOrder.status = "partially_filled";
       }
+
       const remainingRestingOrders = restingOrders.filter(
         (order) => order.filledQty < order.qty,
       );
@@ -68,16 +71,18 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
           takerUserId: order.userId,
           makerSide: "buy",
         });
+
+        //update filled qty
         restingOrder.filledQty += fillQty;
         remainingQty -= fillQty;
         totalCost += fillQty * bidPrice;
 
-        if (restingOrder.filledQty == restingOrder.qty)
+        if (restingOrder.filledQty === restingOrder.qty)
           restingOrder.status = "filled";
-        else if (restingOrder.filledQty < restingOrder.qty)
-          restingOrder.status = "partially_filled";
-        else restingOrder.status = "open";
+        else if (restingOrder.filledQty === 0) restingOrder.status = "open";
+        else restingOrder.status = "partially_filled";
       }
+
       const remainingRestingOrders = restingOrders.filter(
         (order) => order.filledQty < order.qty,
       );
