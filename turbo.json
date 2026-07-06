@@ -16,7 +16,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["DATABASE_URL", "REDIS_URL", "JWT_SECRET", "PORT"]
+      "env": ["DATABASE_URL", "REDIS_URL", "JWT_SECRET", "PORT", "ADMIN_SECRET"]
     }
   }
 }

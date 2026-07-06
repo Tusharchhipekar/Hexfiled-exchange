@@ -8,7 +8,12 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
 }
 
+if (!process.env.ADMIN_SECRET) {
+  throw new Error("ADMIN_SECRET is not defined");
+}
+
 export const config = {
   PORT: process.env.PORT,
   JWT_SECRET: process.env.JWT_SECRET,
+  ADMIN_SECRET: process.env.ADMIN_SECRET,
 };
