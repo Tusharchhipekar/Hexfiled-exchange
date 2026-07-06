@@ -4,14 +4,19 @@ import { ORDERBOOKS } from "../engine-store";
 export function matchOrder(limitPrice: number, order: OrderRecord) {
   let orderbook = ORDERBOOKS.get(order.symbol);
   if (!orderbook) throw new Error(`Market ${order.symbol} doesn't exist`);
+
   const fills: Fill[] = [];
   let remainingQty = order.qty;
   let totalCost = 0;
+  const touchedAskPrices: number[] = [];
+  const touchedBidPrices: number[] = [];
 
   if (order.side === "buy") {
     orderbook.asks.forEachPair((askPrice, restingOrders) => {
       if (askPrice > limitPrice) return { break: 0 };
       if (remainingQty <= 0) return { break: 0 };
+
+      touchedAskPrices.push(askPrice);
       for (const restingOrder of restingOrders) {
         if (remainingQty <= 0) return { break: 0 };
         const remainingFillQty = restingOrder.qty - restingOrder.filledQty;
@@ -27,9 +32,9 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
           makerUserId: restingOrder.userId,
           takerUserId: order.userId,
           makerSide: "sell",
+          createdAt: Date.now(),
         });
 
-        //update filled qty
         restingOrder.filledQty += fillQty;
         remainingQty -= fillQty;
         totalCost += fillQty * askPrice;
@@ -40,7 +45,6 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
         else if (restingOrder.filledQty === 0) restingOrder.status = "open";
         else restingOrder.status = "partially_filled";
       }
-
       const remainingRestingOrders = restingOrders.filter(
         (order) => order.filledQty < order.qty,
       );
@@ -55,6 +59,8 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
     for (const [bidPrice, restingOrders] of orderbook.bids.entriesReversed()) {
       if (bidPrice < limitPrice) break;
       if (remainingQty <= 0) break;
+
+      touchedBidPrices.push(bidPrice);
       for (const restingOrder of restingOrders) {
         if (remainingQty <= 0) break;
         const remainingFillQty = restingOrder.qty - restingOrder.filledQty;
@@ -70,9 +76,9 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
           makerUserId: restingOrder.userId,
           takerUserId: order.userId,
           makerSide: "buy",
+          createdAt: Date.now(),
         });
 
-        //update filled qty
         restingOrder.filledQty += fillQty;
         remainingQty -= fillQty;
         totalCost += fillQty * bidPrice;
@@ -82,7 +88,6 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
         else if (restingOrder.filledQty === 0) restingOrder.status = "open";
         else restingOrder.status = "partially_filled";
       }
-
       const remainingRestingOrders = restingOrders.filter(
         (order) => order.filledQty < order.qty,
       );
@@ -93,5 +98,5 @@ export function matchOrder(limitPrice: number, order: OrderRecord) {
       }
     }
   }
-  return { fills, remainingQty, totalCost };
+  return { fills, remainingQty, totalCost, touchedAskPrices, touchedBidPrices };
 }
