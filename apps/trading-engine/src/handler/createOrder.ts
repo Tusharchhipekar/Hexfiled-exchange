@@ -96,11 +96,12 @@ export function createOrder(payload: createOrderPayload) {
     const makerOrder = ORDERS.get(fill.makerOrderId);
     if (!makerOrder) throw new Error("no maker order found");
     makerOrder.filledQty += fill.qty;
+    makerOrder.fills.push(fill);
 
     //update makerOrder's status
     if (makerOrder.filledQty === makerOrder.qty) makerOrder.status = "filled";
-    else if (makerOrder.filledQty === 0) makerOrder.status = "open";
-    else makerOrder.status = "partially_filled";
+    else if (makerOrder.filledQty > 0) makerOrder.status = "partially_filled";
+    else makerOrder.status = "open";
 
     //update position of maker
     updatePosition({
@@ -121,7 +122,7 @@ export function createOrder(payload: createOrderPayload) {
   //locked price update remaining qty add to available
   //taker order status update
   if (order.filledQty === order.qty) order.status = "filled";
-  else if (order.filledQty < order.qty) order.status = "partially_filled";
+  else if (order.filledQty > 0) order.status = "partially_filled";
   else order.status = "open";
 
   //handle remaining qty

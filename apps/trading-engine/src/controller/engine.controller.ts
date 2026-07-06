@@ -8,11 +8,13 @@ import type {
   createOrderPayload,
   EngineRequest,
   getBalancePayload,
+  GetDepthPayload,
   updateIndexPricePayload,
 } from "@repo/types";
 import { getBalance } from "../handler/getBalance";
 import { updateIndexPrice } from "../handler/updateIndexPrice";
 import { createMarket } from "../handler/createMarket";
+import { getDepth } from "../handler/getDepth";
 
 export function handleCommand(request: EngineRequest) {
   const { type, payload } = request;
@@ -28,7 +30,7 @@ export function handleCommand(request: EngineRequest) {
     case "get_balance":
       return getBalance(payload as getBalancePayload);
     case "get_depth":
-      return getDepth(payload);
+      return getDepth(payload as GetDepthPayload);
     case "create_market":
       return createMarket(payload as CreateMarketPayload);
     default:

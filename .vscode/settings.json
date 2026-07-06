@@ -4,6 +4,7 @@
         "isready",
         "ORDERBOOKS",
         "Postion",
+        "respone",
         "Solana",
         "timescaledb"
     ]
