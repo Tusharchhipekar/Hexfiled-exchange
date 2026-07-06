@@ -1,3 +1,3 @@
-import type { cancelOrderType } from "@repo/types";
+import type { cancelOrderPayload } from "@repo/types";
 
-export const cancelOrder = async (order: cancelOrderType) => {};
+export const cancelOrder = async (order: cancelOrderPayload) => {};

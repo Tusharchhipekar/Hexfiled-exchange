@@ -1,3 +1,3 @@
-import type { CreateOrderApi } from "@repo/types";
+import type { createOrderPayload } from "@repo/types";
 
-export const createOrder = async (order: CreateOrderApi) => {};
+export const createOrder = async (order: createOrderPayload) => {};

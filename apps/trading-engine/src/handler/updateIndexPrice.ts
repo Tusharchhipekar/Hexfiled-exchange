@@ -1,7 +1,3 @@
-import { addBalanceType } from "@repo/types";
-import { BALANCES } from "../engine-store";
+import type { updateIndexPricePayload } from "@repo/types";
 
-export function onramp(payload: addBalanceType) {
-  const { userId, amount } = payload;
-  const balances = BALANCES.get(userId);
-}
+export function updateIndexPrice(payload: updateIndexPricePayload) {}
