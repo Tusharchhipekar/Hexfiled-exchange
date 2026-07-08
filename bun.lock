@@ -38,6 +38,10 @@
     "apps/test": {
       "name": "test",
       "dependencies": {
+        "@repo/db-prisma": "workspace:*",
+        "@repo/redis": "workspace:*",
+        "@repo/timescaledb": "workspace:*",
+        "@repo/types": "workspace:*",
         "@types/express": "^5.0.6",
         "bcrypt": "^6.0.0",
         "express": "^5.2.1",
