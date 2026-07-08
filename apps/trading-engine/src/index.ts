@@ -14,7 +14,7 @@ const GLOBAL_EVENTS = new Set([
 
 const readClient = getRedisClient();
 const writeClient = getRedisClient();
-let lastSeenId = "$";
+let lastSeenId = "0-0";
 
 async function startUp() {
   let readRedis = await readClient;

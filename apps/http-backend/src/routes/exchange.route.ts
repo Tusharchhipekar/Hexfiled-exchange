@@ -10,7 +10,7 @@ export const exchangeRouter = Router();
 
 exchangeRouter.post("/onramp", authMiddleware, addBalance);
 
-exchangeRouter.post("/onramp", authMiddleware, createMarket);
+exchangeRouter.post("/market", authMiddleware, createMarket);
 
 exchangeRouter.post("/order", authMiddleware, createOrder);
 
