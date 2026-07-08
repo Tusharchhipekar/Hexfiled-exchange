@@ -5,7 +5,7 @@ import {
   type EngineRequest,
   type RedisResponseType,
 } from "@repo/types";
-import { loadSnapshot } from "./helper/snapShot";
+import { loadSnapshot, saveSnapshot } from "./helper/snapShot";
 
 const GLOBAL_EVENTS = new Set([
   "create_order",
@@ -14,6 +14,8 @@ const GLOBAL_EVENTS = new Set([
 ]);
 
 let lastSeenId: string;
+let lastSnapshotTime = Date.now();
+const SNAPSHOT_INTERVAL = 5 * 60 * 1000;
 
 const readClient = getRedisClient();
 const writeClient = getRedisClient();
@@ -85,4 +87,12 @@ async function startUp() {
       }
     }
   }
+}
+startUp().catch((err) => {
+  console.error("Engine crashed:", err);
+  process.exit(1);
+});
+
+if (Date.now() - lastSnapshotTime > SNAPSHOT_INTERVAL) {
+  await saveSnapshot(lastSeenId);
 }

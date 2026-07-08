@@ -9,6 +9,7 @@
         "respone",
         "serializedbalances",
         "Solana",
-        "timescaledb"
+        "timescaledb",
+        "tradingengine"
     ]
 }

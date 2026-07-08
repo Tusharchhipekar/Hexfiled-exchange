@@ -36,8 +36,8 @@ async function loadAppEnv() {
   await loadEnvFile(`${WORKSPACE_ROOT}/packages/db-prisma/.env`);
   await loadEnvFile(`${WORKSPACE_ROOT}/packages/timescaledb/.env`);
   await loadEnvFile(`${WORKSPACE_ROOT}/packages/redis/.env`);
-  await loadEnvFile(`${WORKSPACE_ROOT}/apps/engine/.env`);
-  await loadEnvFile(`${WORKSPACE_ROOT}/apps/api/.env`);
+  await loadEnvFile(`${WORKSPACE_ROOT}/apps/trading-trading-engine/.env`);
+  await loadEnvFile(`${WORKSPACE_ROOT}/apps/http-backend/.env`);
 }
 
 function assertRequiredEnv() {
@@ -146,8 +146,8 @@ async function post(
 beforeAll(async () => {
   await loadAppEnv();
   assertRequiredEnv();
-  startProcess("engine", ["bun", "apps/engine/index.ts"]);
-  startProcess("api", ["bun", "apps/api/index.ts"]);
+  startProcess("trading-engine", ["bun", "apps/trading-engine/index.ts"]);
+  startProcess("http-backend", ["bun", "apps/http-backend/index.ts"]);
   await waitForApi();
 }, 20_000);
 
