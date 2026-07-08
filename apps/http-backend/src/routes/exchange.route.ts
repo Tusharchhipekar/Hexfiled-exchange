@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   addBalance,
+  cancelOrder,
   createMarket,
   createOrder,
 } from "../controllers/exchange.controller";
@@ -14,4 +15,4 @@ exchangeRouter.post("/market", authMiddleware, createMarket);
 
 exchangeRouter.post("/order", authMiddleware, createOrder);
 
-exchangeRouter.post("/order:id", authMiddleware, addBalance);
+exchangeRouter.post("/order:id", authMiddleware, cancelOrder);
