@@ -15,6 +15,7 @@ import { getBalance } from "../handler/getBalance";
 import { updateIndexPrice } from "../handler/updateIndexPrice";
 import { createMarket } from "../handler/createMarket";
 import { getDepth } from "../handler/getDepth";
+import { getMarkets } from "../handler/getMarkets";
 import { fundingRate } from "../helper/fundingRate";
 
 export function handleCommand(request: EngineRequest) {
@@ -36,6 +37,8 @@ export function handleCommand(request: EngineRequest) {
       return getDepth(payload as GetDepthPayload);
     case "funding_rate":
       return fundingRate();
+    case "get_markets":
+      return getMarkets();
     default:
       throw new Error("unknown command");
   }
