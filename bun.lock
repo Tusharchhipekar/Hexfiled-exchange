@@ -42,6 +42,8 @@
         "ws": "^8.21.0",
       },
       "devDependencies": {
+        "@repo/redis": "workspace:*",
+        "@repo/types": "workspace:*",
         "@types/bun": "latest",
       },
       "peerDependencies": {

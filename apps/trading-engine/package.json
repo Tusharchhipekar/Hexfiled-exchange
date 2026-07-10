@@ -1,8 +1,14 @@
 {
-  "name": "trading-engine",
+  "name": "@repo/trading-engine",
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "dev": "bun run ./src/index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
