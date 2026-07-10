@@ -104,6 +104,26 @@
         "typescript": "^5",
       },
     },
+    "apps/ws-backend": {
+      "name": "@repo/ws-backend",
+      "dependencies": {
+        "@repo/db-prisma": "workspace:*",
+        "@repo/redis": "workspace:*",
+        "@repo/timescaledb": "workspace:*",
+        "@repo/types": "workspace:*",
+        "@types/jsonwebtoken": "^9.0.10",
+        "@types/ws": "^8.18.1",
+        "dotenv": "^17.4.2",
+        "jsonwebtoken": "^9.0.3",
+        "ws": "^8.21.0",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
     "packages/db-prisma": {
       "name": "@repo/db-prisma",
       "version": "1.0.0",
@@ -376,6 +396,8 @@
     "@repo/typescript-config": ["@repo/typescript-config@workspace:packages/typescript-config"],
 
     "@repo/ui": ["@repo/ui@workspace:packages/ui"],
+
+    "@repo/ws-backend": ["@repo/ws-backend@workspace:apps/ws-backend"],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
