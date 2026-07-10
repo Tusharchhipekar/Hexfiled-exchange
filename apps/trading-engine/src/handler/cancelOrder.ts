@@ -8,7 +8,7 @@ export function cancelOrder(payload: cancelOrderPayload) {
   //check order exist
   if (!order) throw new Error("Order doesn't exist");
   //check if user is authorized
-  if (order.userId !== userId) throw new Error("Unauthorized requet");
+  if (order.userId !== userId) throw new Error("Unauthorized request");
   //check if order is cancellable
   if (order.status === "filled" || order.status === "cancelled")
     throw new Error(`Order status ${order.status} can't be cancelled`);

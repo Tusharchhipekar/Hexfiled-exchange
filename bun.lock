@@ -10,6 +10,19 @@
         "typescript": "5.9.2",
       },
     },
+    "apps/db-poller": {
+      "name": "@repo/db-poller",
+      "devDependencies": {
+        "@repo/db-prisma": "workspace:*",
+        "@repo/redis": "workspace:*",
+        "@repo/timescaledb": "workspace:*",
+        "@repo/types": "workspace:*",
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
     "apps/http-backend": {
       "name": "http-backend",
       "dependencies": {
@@ -36,7 +49,7 @@
       },
     },
     "apps/price-poller": {
-      "name": "price-poller",
+      "name": "@repo/price-poller",
       "dependencies": {
         "@types/ws": "^8.18.1",
         "ws": "^8.21.0",
@@ -72,7 +85,7 @@
       },
     },
     "apps/trading-engine": {
-      "name": "trading-engine",
+      "name": "@repo/trading-engine",
       "dependencies": {
         "@repo/db-prisma": "workspace:*",
         "@repo/redis": "workspace:*",
@@ -344,13 +357,19 @@
 
     "@redis/time-series": ["@redis/time-series@6.1.0", "", { "peerDependencies": { "@redis/client": "^6.1.0" } }, "sha512-uIDBtV8MmG/xpJsRqbGSO4iX6ryj37MLMP82lRpFvI7ykAVe5GyqgxigEbU+uZNv9kDPNMKw3dvI/S/J1BNBzA=="],
 
+    "@repo/db-poller": ["@repo/db-poller@workspace:apps/db-poller"],
+
     "@repo/db-prisma": ["@repo/db-prisma@workspace:packages/db-prisma"],
 
     "@repo/eslint-config": ["@repo/eslint-config@workspace:packages/eslint-config"],
 
+    "@repo/price-poller": ["@repo/price-poller@workspace:apps/price-poller"],
+
     "@repo/redis": ["@repo/redis@workspace:packages/redis"],
 
     "@repo/timescaledb": ["@repo/timescaledb@workspace:packages/timescaledb"],
+
+    "@repo/trading-engine": ["@repo/trading-engine@workspace:apps/trading-engine"],
 
     "@repo/types": ["@repo/types@workspace:packages/types"],
 
@@ -958,8 +977,6 @@
 
     "prettier": ["prettier@3.9.4", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-yWG/o/4oJfo036EKAfK6ACAoDOfHeRHx4tuxkfBZiauURiaSmYwlpOr5LQqKtIkRD2z1PLteme2WoxEnj4tHTg=="],
 
-    "price-poller": ["price-poller@workspace:apps/price-poller"],
-
     "prisma": ["prisma@7.8.0", "", { "dependencies": { "@prisma/config": "7.8.0", "@prisma/dev": "0.24.3", "@prisma/engines": "7.8.0", "@prisma/studio-core": "0.27.3", "mysql2": "3.15.3", "postgres": "3.4.7" }, "peerDependencies": { "better-sqlite3": ">=9.0.0", "typescript": ">=5.4.0" }, "optionalPeers": ["better-sqlite3", "typescript"], "bin": { "prisma": "build/index.js" } }, "sha512-yfN4yrw7HV9kEJhoy1+jgah0jafEIQsf7uWouSsM8MvJtlubsk+kM7AIBWZ8+GJl74Yj3c+nbYqBkMOxtsZ3Lw=="],
 
     "prop-types": ["prop-types@15.8.1", "", { "dependencies": { "loose-envify": "^1.4.0", "object-assign": "^4.1.1", "react-is": "^16.13.1" } }, "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="],
@@ -1089,8 +1106,6 @@
     "to-regex-range": ["to-regex-range@5.0.1", "", { "dependencies": { "is-number": "^7.0.0" } }, "sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ=="],
 
     "toidentifier": ["toidentifier@1.0.1", "", {}, "sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA=="],
-
-    "trading-engine": ["trading-engine@workspace:apps/trading-engine"],
 
     "ts-api-utils": ["ts-api-utils@2.5.0", "", { "peerDependencies": { "typescript": ">=4.8.4" } }, "sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA=="],
 

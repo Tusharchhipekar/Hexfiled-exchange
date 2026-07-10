@@ -55,6 +55,7 @@ export function createOrder(payload: createOrderPayload) {
 
   const order: OrderRecord = {
     orderId: crypto.randomUUID(),
+    marketId: market.marketId,
     userId,
     side,
     orderType,
