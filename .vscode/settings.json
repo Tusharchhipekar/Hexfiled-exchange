@@ -4,6 +4,7 @@
         "healthcheck",
         "innet",
         "isready",
+        "MKSTREAM",
         "onramps",
         "ORDERBOOKS",
         "Postion",

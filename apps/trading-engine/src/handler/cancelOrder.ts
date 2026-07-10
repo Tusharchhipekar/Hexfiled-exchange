@@ -14,7 +14,7 @@ export function cancelOrder(payload: cancelOrderPayload) {
     throw new Error(`Order status ${order.status} can't be cancelled`);
   //resting order find and remove
   const orderbook = ORDERBOOKS.get(order.symbol);
-  if (!orderbook) throw new Error(`market ${order.symbol} doesn exist`);
+  if (!orderbook) throw new Error(`market ${order.symbol} doesn't exist`);
   let tree = order.side === "buy" ? orderbook.bids : orderbook.asks;
   let priceBracket = tree.get(order.price);
   if (!priceBracket) throw new Error("price priceBracket doesn't exist");
