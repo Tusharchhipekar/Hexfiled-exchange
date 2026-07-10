@@ -12,6 +12,9 @@
     },
     "apps/db-poller": {
       "name": "@repo/db-poller",
+      "dependencies": {
+        "dotenv": "^17.4.2",
+      },
       "devDependencies": {
         "@repo/db-prisma": "workspace:*",
         "@repo/redis": "workspace:*",
@@ -52,6 +55,7 @@
       "name": "@repo/price-poller",
       "dependencies": {
         "@types/ws": "^8.18.1",
+        "dotenv": "^17.4.2",
         "ws": "^8.21.0",
       },
       "devDependencies": {

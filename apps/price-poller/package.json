@@ -4,7 +4,10 @@
   "type": "module",
   "private": true,
   "exports": {
-    ".":"./src/index.ts" 
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": " bun run --watch ./src/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -16,6 +19,7 @@
   },
   "dependencies": {
     "@types/ws": "^8.18.1",
+    "dotenv": "^17.4.2",
     "ws": "^8.21.0"
   }
 }
