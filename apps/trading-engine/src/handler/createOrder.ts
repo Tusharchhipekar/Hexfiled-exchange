@@ -7,6 +7,7 @@ import { MARKETS, ORDERBOOKS, ORDERS } from "../engine-store";
 import { fetchBalance } from "../helper/fetchBalance";
 import { matchOrder } from "../helper/matchOrder";
 import { updatePosition } from "../helper/updatePostion";
+import { getDepthDiff } from "../helper/getDepthDiff";
 
 export function createOrder(payload: createOrderPayload) {
   const { userId, symbol, side, orderType, leverage, qty } = payload;
@@ -70,7 +71,8 @@ export function createOrder(payload: createOrderPayload) {
   };
   ORDERS.set(order.orderId, order);
 
-  const { fills, remainingQty, totalCost } = matchOrder(limitPrice, order);
+  const { fills, remainingQty, totalCost, touchedAskPrices, touchedBidPrices } =
+    matchOrder(limitPrice, order);
 
   for (const fill of fills) {
     //order record Update;
@@ -169,5 +171,19 @@ export function createOrder(payload: createOrderPayload) {
   usdBalance.locked -= refund;
   usdBalance.available += refund;
 
-  return order;
+  if (orderType === "limit" && remainingQty > 0) {
+    if (side === "buy") touchedBidPrices.push(limitPrice);
+    else touchedAskPrices.push(limitPrice);
+  }
+
+  const depthDiff = getDepthDiff(symbol, touchedBidPrices, touchedAskPrices);
+
+  return {
+    order,
+    fills: order.fills,
+    makerOrders: fills
+      .map((f) => ORDERS.get(f.makerOrderId))
+      .filter((o): o is OrderRecord => o !== undefined),
+    depthDiff,
+  };
 }
