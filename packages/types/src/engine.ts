@@ -155,7 +155,8 @@ export type EnginePayload =
   | cancelOrderPayload
   | addBalancePayload
   | CreateMarketPayload
-  | getBalancePayload;
+  | getBalancePayload
+  | GetDepthPayload;
 
 export interface EngineRequest {
   correlationId: string;

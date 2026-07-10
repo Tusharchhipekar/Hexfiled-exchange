@@ -11,8 +11,8 @@ timescale.on("error", (err) => {
 
 export async function insertFill(
   symbol: string,
-  price: string,
-  qty: string,
+  price: number,
+  qty: number,
   side: "buy" | "sell",
   createdAt: number,
 ) {

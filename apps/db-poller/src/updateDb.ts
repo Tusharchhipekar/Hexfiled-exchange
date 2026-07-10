@@ -1,15 +1,16 @@
-import type { OrderRecord } from "@repo/types";
+import type { CancelOrderResponse, CreateOrderResponse } from "@repo/types";
 import prisma from "@repo/db-prisma";
+import { insertFill } from "@repo/timescaledb";
 
 export async function updateDb(type: string, data: unknown) {
   if (type === "cancel_order") {
-    const { orderId } = data as OrderRecord;
+    const { order } = data as CancelOrderResponse;
     await prisma.order.update({
-      where: { id: orderId },
+      where: { id: order.orderId },
       data: { status: "cancelled" },
     });
   } else if (type === "create_order") {
-    const order = data as OrderRecord;
+    const { order, makerOrders } = data as CreateOrderResponse;
 
     await prisma.order.upsert({
       where: { id: order.orderId },
@@ -32,43 +33,71 @@ export async function updateDb(type: string, data: unknown) {
       },
     });
 
+    for (const makerOrder of makerOrders) {
+      await prisma.order.upsert({
+        where: { id: makerOrder.orderId },
+        create: {
+          id: makerOrder.orderId,
+          userId: makerOrder.userId,
+          marketId: makerOrder.marketId,
+          orderType: makerOrder.orderType,
+          side: makerOrder.side,
+          qty: makerOrder.qty,
+          filledQty: makerOrder.filledQty,
+          price: makerOrder.price,
+          leverage: makerOrder.leverage,
+          initialMargin: makerOrder.margin,
+          status: makerOrder.status,
+        },
+        update: {
+          filledQty: makerOrder.filledQty,
+          status: makerOrder.status,
+        },
+      });
+    }
+
     for (const fill of order.fills) {
       const existing = await prisma.fill.findUnique({
         where: { id: fill.fillId },
       });
-      if (existing) continue; // already processed — skip
 
-      await prisma.$transaction(async (tx) => {
-        await tx.fill.create({
-          data: {
-            id: fill.fillId,
-            qty: fill.qty,
-            price: fill.price,
-            makerUserId: fill.makerUserId,
-            takerUserId: fill.takerUserId,
-            makerOrderId: fill.makerOrderId,
-            takerOrderId: fill.takerOrderId,
-            marketId: order.marketId,
-          },
-        });
+      if (!existing) {
+        await prisma.$transaction(async (tx) => {
+          await tx.fill.create({
+            data: {
+              id: fill.fillId,
+              qty: fill.qty,
+              price: fill.price,
+              makerUserId: fill.makerUserId,
+              takerUserId: fill.takerUserId,
+              makerOrderId: fill.makerOrderId,
+              takerOrderId: fill.takerOrderId,
+              marketId: order.marketId,
+            },
+          });
 
-        const makerOrder = await tx.order.update({
-          where: { id: fill.makerOrderId },
-          data: { filledQty: { increment: fill.qty } },
+          const makerOrder = makerOrders.find(
+            (order) => order.orderId === fill.makerOrderId,
+          );
+          if (makerOrder) {
+            await tx.order.update({
+              where: { id: fill.makerOrderId },
+              data: {
+                filledQty: makerOrder.filledQty,
+                status: makerOrder.status,
+              },
+            });
+          }
         });
+      }
 
-        await tx.order.update({
-          where: { id: fill.makerOrderId },
-          data: {
-            status:
-              makerOrder.filledQty >= makerOrder.qty
-                ? "filled"
-                : makerOrder.filledQty > 0
-                  ? "partially_filled"
-                  : "open",
-          },
-        });
-      });
+      await insertFill(
+        order.symbol,
+        fill.price,
+        fill.qty,
+        fill.makerSide === "buy" ? "sell" : "buy",
+        fill.createdAt,
+      );
     }
   }
 }

@@ -37,8 +37,9 @@ model Order {
   id            String      @id @default(uuid())
   userId        String
   marketId      String
+  orderType     OrderType
   side          Side
-  qty           String
+  qty           Int
   filledQty     Int         @default(0)
   price         Int
   leverage      Int

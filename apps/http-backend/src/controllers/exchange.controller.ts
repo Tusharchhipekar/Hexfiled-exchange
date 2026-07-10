@@ -95,13 +95,18 @@ export const createOrder = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Invalid input" });
     return;
   }
+  try {
+    const response = await loopback("create_order", {
+      userId,
+      ...parsed.data,
+    });
 
-  const response = await loopback("create_order", {
-    userId,
-    ...parsed.data,
-  });
-
-  res.status(200).json(response);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(400).json({
+      error: (error as Error).message,
+    });
+  }
 };
 
 export const cancelOrder = async (req: Request, res: Response) => {
@@ -112,10 +117,27 @@ export const cancelOrder = async (req: Request, res: Response) => {
     return;
   }
   const orderId = parsed.data;
-  const response = await loopback("cancel_order", {
-    userId,
-    orderId,
-  });
+  try {
+    const response = await loopback("cancel_order", {
+      userId,
+      orderId,
+    });
 
-  res.status(200).json(response);
+    res.status(200).json(response);
+  } catch (error) {
+    const message = (error as Error).message;
+    if (message.toLowerCase().includes("doesn't exist")) {
+      console.error(
+        "Cancel requested for DB-projected order missing from engine",
+        {
+          orderId,
+          userId,
+          error: message,
+        },
+      );
+    }
+    res.status(400).json({
+      error: (error as Error).message,
+    });
+  }
 };
