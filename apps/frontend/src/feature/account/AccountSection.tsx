@@ -6,7 +6,7 @@ import { formatAccountId, formatNumber, formatTime, isCancellableOrder, isTermin
 import { getMarketSymbol } from "../../lib/markets";
 import { derivePositions } from "./position";
 
-export function AccountPanel({
+export function AccountSection({
   token,
   userId,
   balance,
