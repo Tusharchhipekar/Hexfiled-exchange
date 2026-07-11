@@ -8,7 +8,7 @@ import { CandlestickChart } from "../feature/chart/CandlestickChart";
 import { AccountSection } from "../feature/account/AccountSection";
 import { MarketPicker } from "../feature/markets/MarketPicker";
 import { OrderBook } from "../feature/orderbook/OrderBook";
-import { OrderTicket } from "../feature/Order-ticket/orderTicket";
+import { OrderTicket } from "../feature/Order-ticket/OrderTicket";
 import { TradesTable } from "../feature/trades/TradesTable";
 import { useAsyncData } from "../hooks/useAsyncData";
 import { useDepthSync } from "../hooks/useDepthSync";
@@ -18,7 +18,7 @@ import { useLiveTrades } from "../hooks/useLiveTrades";
 import { useMarkPrice } from "../hooks/useMarkPrice";
 import { formatLastPrice, formatMarkPrice, formatPerpSymbol, formatTickerChange, formatTickerVolume, getTickerTone, sortMarkets } from "../lib/markets";
 
-export function ExchangeShell({ token, onSignOut }: { token: string | null; onSignOut: () => void }) {
+export function Exchange({ token, onSignOut }: { token: string | null; onSignOut: () => void }) {
   const marketsState = useAsyncData(() => api.getMarkets(), []);
   const rawMarkets = marketsState.data?.markets;
   const visibleMarkets = useMemo(
