@@ -4,7 +4,13 @@ import { signin, signup } from "../service/auth.api";
 export const useAuth = () => {
   const dispatch = useDispatch();
 
-  async function handleSignin({ username, password }) {
+  async function handleSignin({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) {
     try {
       dispatch(setLoading(true));
       const data = await signin({ username, password });
@@ -17,7 +23,15 @@ export const useAuth = () => {
     }
   }
 
-  async function handleSignup({ name, username, password }) {
+  async function handleSignup({
+    name,
+    username,
+    password,
+  }: {
+    name: string;
+    username: string;
+    password: string;
+  }) {
     try {
       dispatch(setLoading(true));
       const data = await signup({ name, username, password });

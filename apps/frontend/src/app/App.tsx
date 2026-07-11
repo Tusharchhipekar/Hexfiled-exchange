@@ -5,7 +5,7 @@ function App() {
   
 
   return (
-    <div>hi
+    <div className=' h-screen flex flex-col bg-blue-500'>hi
 
     </div>
   )
