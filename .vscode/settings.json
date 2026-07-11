@@ -15,6 +15,7 @@
         "Solana",
         "solusdt",
         "timescaledb",
-        "tradingengine"
+        "tradingengine",
+        "Vercel"
     ]
 }

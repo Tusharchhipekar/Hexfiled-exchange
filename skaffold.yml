@@ -1,0 +1,71 @@
+apiVersion: "skaffold/v4"
+kind: Config
+
+
+build:
+  
+  tagPolicy:
+    sha256: {}
+
+  artifacts:
+    - 
+      image: http-backend
+      context: ./apps/http-backend
+      docker:
+        dockerfile: dockerfile
+      sync:
+       infer:
+        - "src/**"
+
+    - image: trading-engine
+      context: ./apps/trading-engine
+      docker:
+        dockerfile: dockerfile
+      sync:
+       infer:
+        - "src/**"  
+
+    - image: price-poller
+      context: ./apps/price-poller
+      docker:
+        dockerfile: dockerfile
+      sync:
+       infer:
+        - "src/**" 
+
+    - image: ws-backend
+      context: ./apps/ws-backend
+      docker:
+        dockerfile: dockerfile
+      sync:
+       infer:
+        - "src/**"      
+        
+    - image: db-poller
+      context: ./apps/db-poller
+      docker:
+        dockerfile: dockerfile
+      sync:
+       infer:
+        - "src/**" 
+
+manifests:
+  rawYaml:
+    - k8s/secret.yml
+
+    - k8s/http-backend-deployment.yml
+    - k8s/http-backend-service.yml
+
+    - k8s/trading-engine-deployment.yml
+    - k8s/trading-engine-service.yml
+
+    - k8s/price-poller-deployment.yml
+    - k8s/price-poller-service.yml
+
+    - k8s/ws-backend-deployment.yml
+    - k8s/ws-backend-service.yml
+
+    - k8s/db-poller-deployment.yml
+    - k8s/db-poller-service.yml
+
+    - k8s/ingress.yml
