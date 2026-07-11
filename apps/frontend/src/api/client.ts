@@ -12,12 +12,8 @@ import type {
   UserFill,
   UserOrder,
 } from "./types";
-import axios from "axios";
 
-const exchangeApiInstance = axios.create({
-  baseURL: "/api/v1",
-  withCredentials: true,
-});
+const BASE_URL = "/api/v1";
 
 type RequestOptions = {
   token?: string | null;
@@ -46,7 +42,7 @@ async function request<T>(
   if (options.token) headers.authorization = `Bearer ${options.token}`;
   if (options.adminToken) headers.token = options.adminToken;
 
-  const response = await fetch(`${exchangeApiInstance}${path}`, {
+  const response = await fetch(`${BASE_URL}/${path}`, {
     method: options.method ?? "GET",
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
