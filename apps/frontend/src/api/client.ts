@@ -1,0 +1,141 @@
+import type {
+  AuthResponse,
+  Balance,
+  Candle,
+  CreateMarketPayload,
+  Depth,
+  Market,
+  OrderMutationResponse,
+  OrderPayload,
+  Ticker,
+  Trade,
+  UserFill,
+  UserOrder,
+} from "./types";
+import axios from "axios";
+
+const exchangeApiInstance = axios.create({
+  baseURL: "/api/v1",
+  withCredentials: true,
+});
+
+type RequestOptions = {
+  token?: string | null;
+  adminToken?: string | null;
+  method?: "GET" | "POST" | "DELETE";
+  body?: unknown;
+};
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  const headers: Record<string, string> = {};
+
+  if (options.body !== undefined) headers["content-type"] = "application/json";
+  if (options.token) headers.authorization = `Bearer ${options.token}`;
+  if (options.adminToken) headers.token = options.adminToken;
+
+  const response = await fetch(`${exchangeApiInstance}${path}`, {
+    method: options.method ?? "GET",
+    headers,
+    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+  });
+
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      data?.error ?? data?.message ?? `Request failed: ${response.status}`,
+    );
+  }
+
+  return data as T;
+}
+
+export const api = {
+  signin(payload: { username: string; password: string }) {
+    return request<AuthResponse>("auth/signin", {
+      method: "POST",
+      body: payload,
+    });
+  },
+  signup(payload: { name?: string; username: string; password: string }) {
+    return request<AuthResponse>("auth/signup", {
+      method: "POST",
+      body: payload,
+    });
+  },
+  getMarkets() {
+    return request<{ markets: Market[] }>("exchange/markets");
+  },
+  createMarket(
+    token: string,
+    adminToken: string,
+    payload: CreateMarketPayload,
+  ) {
+    return request<{ marketId: string }>("exchange/market", {
+      method: "POST",
+      token,
+      adminToken,
+      body: payload,
+    });
+  },
+  getTicker(symbol: string) {
+    return request<Ticker>(`exchange/ticker/${encodeURIComponent(symbol)}`);
+  },
+  getDepth(symbol: string) {
+    return request<Depth>(`exchange/depth/${encodeURIComponent(symbol)}`);
+  },
+  getKlines(symbol: string, interval = "1m") {
+    return request<{ candles: Candle[] }>(
+      `exchange/klines/${encodeURIComponent(symbol)}?interval=${interval}`,
+    );
+  },
+  getTrades(symbol: string, limit = 50) {
+    return request<{ trades: Trade[] }>(
+      `exchange/trades/${encodeURIComponent(symbol)}?limit=${limit}`,
+    );
+  },
+  getBalance(token: string) {
+    return request<{ response: Balance }>("exchange/balance", { token });
+  },
+  addBalance(token: string, amount: number) {
+    return request<{ response: Balance }>("exchange/onramp", {
+      method: "POST",
+      token,
+      body: { amount },
+    });
+  },
+  getOrders(token: string) {
+    return request<{ orders: UserOrder[] }>("exchange/orders", { token });
+  },
+  getFills(token: string) {
+    return request<{ fills: UserFill[] }>("exchange/fills", { token });
+  },
+  placeOrder(token: string, payload: OrderPayload) {
+    return request<OrderMutationResponse>("exchange/order", {
+      method: "POST",
+      token,
+      body: payload,
+    });
+  },
+  cancelOrder(token: string, orderId: string) {
+    return request<OrderMutationResponse>(
+      `exchange/order/${encodeURIComponent(orderId)}`,
+      { method: "DELETE", token },
+    );
+  },
+};
