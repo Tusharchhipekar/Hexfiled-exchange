@@ -44,23 +44,23 @@ export function CandlestickChart({ candles, ticker, markPrice, symbol, isLoading
     const chart = createChart(containerRef.current, {
       autoSize: true,
       layout: {
-        background: { color: "#081116" },
-        textColor: "#6c818d",
+        background: { color: "#201f23" },
+        textColor: "#8a8790",
         fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
       },
       grid: {
-        horzLines: { color: "#172329" },
-        vertLines: { color: "#172329" },
+        horzLines: { color: "#2d2c30" },
+        vertLines: { color: "#2d2c30" },
       },
       rightPriceScale: {
-        borderColor: "#172329",
+        borderColor: "#2d2c30",
         scaleMargins: {
           top: 0.08,
           bottom: 0.28,
         },
       },
       timeScale: {
-        borderColor: "#172329",
+        borderColor: "#2d2c30",
         timeVisible: true,
         secondsVisible: false,
         barSpacing: 16,
@@ -71,11 +71,11 @@ export function CandlestickChart({ candles, ticker, markPrice, symbol, isLoading
         mode: 0,
         vertLine: {
           color: "rgba(148, 163, 184, 0.32)",
-          labelBackgroundColor: "#172329",
+          labelBackgroundColor: "#2d2c30",
         },
         horzLine: {
           color: "rgba(148, 163, 184, 0.32)",
-          labelBackgroundColor: "#172329",
+          labelBackgroundColor: "#2d2c30",
         },
       },
     });
@@ -156,7 +156,7 @@ export function CandlestickChart({ candles, ticker, markPrice, symbol, isLoading
       }));
       lines.push(series.createPriceLine({
         price: latestCandle.close,
-        color: "rgba(34, 211, 238, 0.82)",
+        color: "rgba(167, 139, 250, 0.82)",
         lineWidth: 1,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: false,
@@ -180,11 +180,11 @@ export function CandlestickChart({ candles, ticker, markPrice, symbol, isLoading
   }, [latestCandle, markPrice]);
 
   return (
-    <div className={`relative min-h-[360px] overflow-hidden bg-[linear-gradient(180deg,#0d171c,#081116)] ${className}`}>
+    <div className={`relative min-h-[360px] overflow-hidden bg-[linear-gradient(180deg,var(--card),#17161a)] ${className}`}>
       <div ref={containerRef} className="absolute inset-0" />
       <div className="pointer-events-none absolute left-4 top-4 z-10 max-w-[calc(100%-7rem)] px-1 py-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.92)]">
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-exchange-500">{symbol}</p>
-        <p className="mt-2 font-mono text-xl font-semibold leading-none text-white sm:text-2xl">{formatDisplayPrice(latestClose, ticker, symbol)}</p>
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{symbol}</p>
+        <p className="mt-2 font-mono text-xl font-semibold leading-none text-foreground sm:text-2xl">{formatDisplayPrice(latestClose, ticker, symbol)}</p>
         {currentCandle ? (
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs">
             <Readout label="O" value={currentCandle.open} />
@@ -205,18 +205,18 @@ export function CandlestickChart({ candles, ticker, markPrice, symbol, isLoading
   );
 }
 
-function Readout({ label, value, tone = "text-exchange-200" }: { label: string; value: number; tone?: string }) {
+function Readout({ label, value, tone = "text-foreground/80" }: { label: string; value: number; tone?: string }) {
   return (
     <span className={tone}>
-      <span className="text-exchange-500">{label}</span> {formatNumber(value)}
+      <span className="text-muted-foreground">{label}</span> {formatNumber(value)}
     </span>
   );
 }
 
 function ChartOverlay({ message }: { message: string }) {
   return (
-    <div className="absolute inset-0 grid place-items-center bg-exchange-950/40">
-      <div className="border border-exchange-800 bg-exchange-900/90 px-4 py-3 text-sm text-exchange-300">
+    <div className="absolute inset-0 grid place-items-center bg-background/40">
+      <div className="border border-border bg-card/90 px-4 py-3 text-sm text-muted-foreground">
         {message}
       </div>
     </div>
@@ -288,12 +288,12 @@ function formatCandleChange(candle: CandlestickData) {
 function candleChangeTone(candle: CandlestickData) {
   if (candle.close > candle.open) return "text-emerald-300";
   if (candle.close < candle.open) return "text-rose-300";
-  return "text-exchange-400";
+  return "text-muted-foreground";
 }
 
 function getTickerTone(ticker: Ticker | null) {
   const pct = Number(ticker?.changePct);
-  if (!Number.isFinite(pct)) return "text-exchange-400";
+  if (!Number.isFinite(pct)) return "text-muted-foreground";
   return pct >= 0 ? "text-emerald-300" : "text-rose-300";
 }
 

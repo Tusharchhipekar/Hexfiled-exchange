@@ -31,22 +31,22 @@ export function AuthPage({ mode, onAuth }: { mode: "signin" | "signup"; onAuth: 
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.12),transparent_32%),#060d11] text-exchange-100">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.12),transparent_32%),var(--background)] text-foreground">
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
-        <section className="flex min-h-[44vh] flex-col justify-between border-b border-exchange-800 px-6 py-6 lg:min-h-screen lg:border-b-0 lg:border-r lg:px-10">
+        <section className="flex min-h-[44vh] flex-col justify-between border-b border-border px-6 py-6 lg:min-h-screen lg:border-b-0 lg:border-r lg:px-10">
           <BrandBar />
           <div className="max-w-2xl py-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">Perpetual Futures</p>
-            <h1 className="mt-5 max-w-xl text-4xl font-semibold leading-tight text-white sm:text-5xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Perpetual Futures</p>
+            <h1 className="mt-5 max-w-xl text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
               Trade with the full market in view.
             </h1>
-            <div className="mt-10 grid max-w-xl grid-cols-3 gap-px overflow-hidden rounded border border-exchange-800 bg-exchange-800">
+            <div className="mt-10 grid max-w-xl grid-cols-3 gap-px overflow-hidden rounded border border-border bg-border">
               <Metric label="Mark" value="Live" />
               <Metric label="Trades" value="Fills" />
               <Metric label="Candles" value="OHLCV" />
             </div>
           </div>
-          <div className="grid max-w-xl grid-cols-3 gap-px border border-exchange-800 bg-exchange-800">
+          <div className="grid max-w-xl grid-cols-3 gap-px border border-border bg-border">
             <Metric label="Markets" value="BTC / ETH / SOL" />
             <Metric label="Collateral" value="USD" />
             <Metric label="Mode" value="Perpetuals" />
@@ -56,17 +56,17 @@ export function AuthPage({ mode, onAuth }: { mode: "signin" | "signup"; onAuth: 
         <section className="flex items-center justify-center px-6 py-10">
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-md rounded-md border border-exchange-800 bg-exchange-900/80 p-5 shadow-2xl shadow-black/30"
+            className="w-full max-w-md rounded-md border border-border bg-card/80 p-5 shadow-2xl shadow-black/30"
           >
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-white">{isSignup ? "Create account" : "Sign in"}</h2>
-                <p className="mt-1 text-sm text-exchange-400">{isSignup ? "Start trading perpetuals." : "Return to your account."}</p>
+                <h2 className="text-xl font-semibold text-foreground">{isSignup ? "Create account" : "Sign in"}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{isSignup ? "Start trading perpetuals." : "Return to your account."}</p>
               </div>
               <button
                 type="button"
                 onClick={() => navigate(isSignup ? "signin" : "signup")}
-                className="text-sm font-medium text-cyan-300 hover:text-cyan-200"
+                className="text-sm font-medium text-primary hover:text-primary/80"
               >
                 {isSignup ? "Sign in" : "Create account"}
               </button>
@@ -77,7 +77,7 @@ export function AuthPage({ mode, onAuth }: { mode: "signin" | "signup"; onAuth: 
             <Field label="Password" name="password" type="password" autoComplete={isSignup ? "new-password" : "current-password"} />
 
             {error ? (
-              <div className="rounded-md border border-rose-400/30 bg-rose-400/10 px-3 py-2 text-sm text-rose-200">
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive-foreground">
                 {error}
               </div>
             ) : null}
@@ -85,7 +85,7 @@ export function AuthPage({ mode, onAuth }: { mode: "signin" | "signup"; onAuth: 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-4 h-11 w-full rounded-md bg-cyan-300 text-sm font-semibold text-exchange-950 transition hover:bg-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-200 focus:ring-offset-2 focus:ring-offset-exchange-950"
+              className="mt-4 h-11 w-full rounded-md bg-primary text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
             >
               {isSubmitting ? "Working..." : isSignup ? "Create account" : "Sign in"}
             </button>

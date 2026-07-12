@@ -34,9 +34,7 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
   const [accountVersion, setAccountVersion] = useState(0);
   const [marketVersion, setMarketVersion] = useState(0);
 
-  // Derive the selected market during render when the market list changes
-  // and the current selection is no longer valid (or hasn't been set yet),
-  // instead of calling setState synchronously inside an effect.
+
   const [prevVisibleMarkets, setPrevVisibleMarkets] = useState(visibleMarkets);
   if (visibleMarkets !== prevVisibleMarkets) {
     setPrevVisibleMarkets(visibleMarkets);
@@ -125,14 +123,14 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
   }, [token, accountActivityKey]);
 
   return (
-    <main className="min-h-screen bg-exchange-950 text-exchange-100">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen flex-col">
-        <header className="flex flex-col border-b border-exchange-800 bg-exchange-950/95 lg:h-16 lg:flex-row lg:items-center">
-          <div className="flex h-16 items-center border-b border-exchange-800 px-4 lg:w-48 lg:border-b-0 lg:border-r">
+        <header className="flex flex-col border-b border-border bg-background/95 lg:h-16 lg:flex-row lg:items-center">
+          <div className="flex h-16 items-center border-b border-border px-4 lg:w-48 lg:border-b-0 lg:border-r">
             <BrandBar />
           </div>
 
-          <div className="grid flex-1 grid-cols-2 gap-px bg-exchange-800 lg:grid-cols-[220px_repeat(4,minmax(110px,1fr))_280px]">
+          <div className="grid flex-1 grid-cols-2 gap-px bg-border lg:grid-cols-[220px_repeat(4,minmax(110px,1fr))_280px]">
             <MarketPicker
               markets={visibleMarkets}
               selectedSymbol={selectedMarket}
@@ -147,7 +145,7 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
             <TickerStat label="Last" value={formatLastPrice(tickerState.data)} tone="accent" />
             <TickerStat label="24h Change" value={formatTickerChange(tickerState.data)} tone={getTickerTone(tickerState.data)} />
             <TickerStat label="Volume" value={formatTickerVolume(tickerState.data)} tone="neutral" />
-            <div className="flex h-14 items-center justify-end gap-2 bg-exchange-900 px-3 lg:h-16">
+            <div className="flex h-14 items-center justify-end gap-2 bg-card px-3 lg:h-16">
               <HeaderActionButton onClick={() => token ? navigate("admin") : navigate("signin")}>
                 Admin
               </HeaderActionButton>
@@ -163,8 +161,8 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
 
         {marketsState.error ? <StatusBanner message={`Markets unavailable: ${marketsState.error}`} /> : null}
 
-        <section className="grid flex-1 gap-px overflow-hidden bg-exchange-800 lg:h-[calc(100vh-4rem)] lg:grid-cols-[minmax(620px,1fr)_320px_360px]">
-          <div className="grid min-h-0 gap-px bg-exchange-800 lg:grid-rows-[minmax(320px,1fr)_360px]">
+        <section className="grid flex-1 gap-px overflow-hidden bg-border lg:h-[calc(100vh-4rem)] lg:grid-cols-[minmax(620px,1fr)_320px_360px]">
+          <div className="grid min-h-0 gap-px bg-border lg:grid-rows-[minmax(320px,1fr)_360px]">
             <Panel
               title="Chart"
               action={
@@ -174,7 +172,7 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
                   <button
                     type="button"
                     onClick={() => setIsChartFullscreen((current) => !current)}
-                    className="h-7 rounded-md border border-exchange-700 px-2.5 text-[11px] font-medium text-exchange-300 hover:border-cyan-300 hover:text-cyan-200"
+                    className="h-7 rounded-md border border-border px-2.5 text-[11px] font-medium text-muted-foreground hover:border-primary hover:text-primary"
                     aria-label={isChartFullscreen ? "Exit fullscreen chart" : "Open fullscreen chart"}
                   >
                     {isChartFullscreen ? "Exit" : "Full"}
@@ -194,7 +192,7 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
                 className={isChartFullscreen ? "h-full min-h-0" : ""}
               />
             </Panel>
-            <div className="min-h-0 bg-exchange-800">
+            <div className="min-h-0 bg-border">
               <Panel title="Account" action={token ? <LiveStatusBadge isLive={liveAccount.isLive} error={liveAccount.error} /> : undefined}>
                 <AccountSection
                   token={token}
@@ -213,7 +211,7 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
             </div>
           </div>
 
-          <div className="min-h-0 bg-exchange-800">
+          <div className="min-h-0 bg-border">
             <Panel
               title={marketDataTab === "book" ? "Order book" : "Recent trades"}
               className="h-full"
@@ -239,7 +237,7 @@ export function Exchange({ token, onSignOut }: { token: string | null; onSignOut
             </Panel>
           </div>
 
-          <div className="min-h-0 overflow-y-auto bg-exchange-800">
+          <div className="min-h-0 overflow-y-auto bg-border">
             <Panel title="Order ticket">
               {currentMarket ? (
                 <OrderTicket

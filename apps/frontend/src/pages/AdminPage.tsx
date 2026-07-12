@@ -68,8 +68,8 @@ export function AdminPage({ token, onSignOut }: { token: string | null; onSignOu
   }
 
   return (
-    <main className="min-h-screen bg-exchange-950 text-exchange-100">
-      <header className="flex h-16 items-center justify-between border-b border-exchange-800 px-4">
+    <main className="min-h-screen bg-background text-foreground">
+      <header className="flex h-16 items-center justify-between border-b border-border px-4">
         <button type="button" onClick={() => navigate("trade")} className="text-left">
           <BrandBar />
         </button>
@@ -86,26 +86,26 @@ export function AdminPage({ token, onSignOut }: { token: string | null; onSignOu
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-5xl gap-px bg-exchange-800 p-px sm:mt-10 lg:grid-cols-[1fr_1.15fr]">
-        <div className="bg-exchange-900 p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300">Admin</p>
-          <h1 className="mt-3 text-xl font-semibold text-white">Create market</h1>
-          <p className="mt-2 text-sm text-exchange-400">Add a base-asset market to the engine and DB projection.</p>
+      <section className="mx-auto grid max-w-5xl gap-px bg-border p-px sm:mt-10 lg:grid-cols-[1fr_1.15fr]">
+        <div className="bg-card p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Admin</p>
+          <h1 className="mt-3 text-xl font-semibold text-foreground">Create market</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Add a base-asset market to the engine and DB projection.</p>
 
-          <div className="mt-6 border border-exchange-800">
-            <div className="border-b border-exchange-800 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-exchange-500">
+          <div className="mt-6 border border-border">
+            <div className="border-b border-border px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Existing markets
             </div>
             <div className="max-h-72 overflow-y-auto">
               {markets.length === 0 ? (
                 <PanelState message={marketsState.isLoading ? "Loading markets" : "No markets created"} />
               ) : markets.map((market) => (
-                <div key={market.id} className="grid grid-cols-[1fr_auto] gap-3 border-b border-exchange-800 px-3 py-3 last:border-b-0">
+                <div key={market.id} className="grid grid-cols-[1fr_auto] gap-3 border-b border-border px-3 py-3 last:border-b-0">
                   <div>
-                    <p className="font-mono text-sm font-semibold text-white">{market.symbol}</p>
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-exchange-500">PERPETUAL</p>
+                    <p className="font-mono text-sm font-semibold text-foreground">{market.symbol}</p>
+                    <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">PERPETUAL</p>
                   </div>
-                  <div className="text-right font-mono text-xs text-exchange-400">
+                  <div className="text-right font-mono text-xs text-muted-foreground">
                     <p>{market.maxLeverage}x</p>
                     <p className="mt-1">min {market.minQty}</p>
                   </div>
@@ -115,7 +115,7 @@ export function AdminPage({ token, onSignOut }: { token: string | null; onSignOu
           </div>
         </div>
 
-        <form onSubmit={handleCreateMarket} className="bg-exchange-900 p-5">
+        <form onSubmit={handleCreateMarket} className="bg-card p-5">
           <div className="grid gap-4">
             <AdminTextInput
               label="Admin token"
@@ -154,13 +154,13 @@ export function AdminPage({ token, onSignOut }: { token: string | null; onSignOu
             </div>
           </div>
 
-          {error ? <div className="mt-4 rounded-md border border-rose-400/30 bg-rose-400/10 px-3 py-2 text-xs text-rose-200">{error}</div> : null}
+          {error ? <div className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive-foreground">{error}</div> : null}
           {message ? <div className="mt-4 rounded-md border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200">{message}</div> : null}
 
           <button
             type="submit"
             disabled={isCreating || !token}
-            className="mt-4 h-11 w-full rounded-md bg-cyan-300 text-sm font-semibold text-exchange-950 hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-4 h-11 w-full rounded-md bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {token ? isCreating ? "Creating..." : "Create market" : "Sign in as admin"}
           </button>
@@ -187,14 +187,14 @@ function AdminTextInput({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-exchange-500">{label}</span>
+      <span className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{label}</span>
       <input
         type={type}
         inputMode={inputMode}
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="h-11 w-full rounded-md border border-exchange-800 bg-exchange-950 px-3 font-mono text-sm text-white outline-none placeholder:text-exchange-600 focus:border-cyan-300"
+        className="h-11 w-full rounded-md border border-border bg-background px-3 font-mono text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring"
       />
     </label>
   );

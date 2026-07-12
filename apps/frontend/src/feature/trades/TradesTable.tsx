@@ -11,20 +11,20 @@ export function TradesTable({ trades, isLoading, error }: { trades: Trade[]; isL
 
   return (
     <div className="flex h-full min-h-0 flex-col p-3 font-mono text-xs">
-      <div className="grid shrink-0 grid-cols-3 text-[10px] uppercase tracking-[0.12em] text-exchange-500">
+      <div className="grid shrink-0 grid-cols-3 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
         <span>Price</span>
         <span className="text-right">Size</span>
         <span className="text-right">Time</span>
       </div>
       <div className="mt-2 min-h-0 flex-1 space-y-0.5 overflow-y-auto pr-1">
         {trades.map((trade) => (
-          <div key={`${trade.time}-${trade.price}-${trade.qty}`} className="grid h-7 grid-cols-3 items-center px-1 hover:bg-exchange-800/70">
+          <div key={`${trade.time}-${trade.price}-${trade.qty}`} className="grid h-7 grid-cols-3 items-center px-1 hover:bg-border/70">
             <span className={trade.side === "buy" ? "text-emerald-300" : "text-rose-300"}>
               <span className="mr-1 text-[9px]">{trade.side === "buy" ? "B" : "S"}</span>
               {formatNumber(trade.price)}
             </span>
-            <span className="text-right text-exchange-200">{formatNumber(trade.qty)}</span>
-            <span className="text-right text-exchange-500">{formatTime(trade.time)}</span>
+            <span className="text-right text-foreground/80">{formatNumber(trade.qty)}</span>
+            <span className="text-right text-muted-foreground">{formatTime(trade.time)}</span>
           </div>
         ))}
       </div>

@@ -55,41 +55,41 @@ export function MarketPicker({
   }, [isOpen, onOpenChange]);
 
   return (
-    <div ref={containerRef} className="relative bg-exchange-900">
+    <div ref={containerRef} className="relative bg-card">
       <button
         type="button"
         disabled={markets.length === 0}
         onClick={() => onOpenChange(!isOpen)}
-        className="flex h-14 w-full items-center justify-between gap-3 px-4 text-left outline-none hover:bg-exchange-800 disabled:cursor-not-allowed disabled:opacity-60 lg:h-16"
+        className="flex h-14 w-full items-center justify-between gap-3 px-4 text-left outline-none hover:bg-border disabled:cursor-not-allowed disabled:opacity-60 lg:h-16"
       >
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-semibold text-white">{selectedMarket ? formatPerpSymbol(selectedMarket.symbol) : "Loading"}</span>
+            <span className="truncate text-sm font-semibold text-foreground">{selectedMarket ? formatPerpSymbol(selectedMarket.symbol) : "Loading"}</span>
             {selectedMarket ? (
-              <span className="rounded border border-cyan-300/30 bg-cyan-300/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-cyan-200">
+              <span className="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-primary">
                 {selectedMarket.maxLeverage}x
               </span>
             ) : null}
           </div>
-          <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-[0.14em] text-exchange-500">
+          <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             {selectedMarket ? formatPairSymbol(selectedMarket.symbol) : "Markets"}
           </p>
         </div>
-        <span className="shrink-0 text-exchange-500">▾</span>
+        <span className="shrink-0 text-muted-foreground">▾</span>
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-full z-30 mt-px w-[320px] rounded-md border border-exchange-700 bg-exchange-950 shadow-2xl shadow-black/50">
-          <div className="border-b border-exchange-800 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-exchange-500">
+        <div className="absolute left-0 top-full z-30 mt-px w-[320px] rounded-md border border-border bg-background shadow-2xl shadow-black/50">
+          <div className="border-b border-border px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Perpetual markets
           </div>
-          <div className="border-b border-exchange-800 p-2">
+          <div className="border-b border-border p-2">
             <input
               ref={inputRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search BTC"
-              className="h-9 w-full rounded-md border border-exchange-800 bg-exchange-900 px-3 font-mono text-xs text-white outline-none placeholder:text-exchange-600 focus:border-cyan-300"
+              className="h-9 w-full rounded-md border border-border bg-card px-3 font-mono text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-ring"
             />
           </div>
           <div className="max-h-80 overflow-y-auto p-1">
@@ -101,18 +101,18 @@ export function MarketPicker({
                   onSelect(market.symbol);
                   setQuery("");
                 }}
-                className={`grid w-full grid-cols-[1fr_auto] gap-3 rounded border-l-2 px-3 py-2 text-left hover:bg-exchange-800 ${
-                  market.symbol === selectedSymbol ? "bg-cyan-300/10" : ""
-                } ${market.symbol === selectedSymbol ? "border-cyan-300" : "border-transparent"}`}
+                className={`grid w-full grid-cols-[1fr_auto] gap-3 rounded border-l-2 px-3 py-2 text-left hover:bg-border ${
+                  market.symbol === selectedSymbol ? "bg-primary/10" : ""
+                } ${market.symbol === selectedSymbol ? "border-primary" : "border-transparent"}`}
               >
                 <span>
-                  <span className="block text-sm font-semibold text-white">{formatPerpSymbol(market.symbol)}</span>
-                  <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.12em] text-exchange-500">{formatPairSymbol(market.symbol)}</span>
+                  <span className="block text-sm font-semibold text-foreground">{formatPerpSymbol(market.symbol)}</span>
+                  <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{formatPairSymbol(market.symbol)}</span>
                 </span>
-                <span className="self-center font-mono text-[10px] text-exchange-500">{market.maxLeverage}x</span>
+                <span className="self-center font-mono text-[10px] text-muted-foreground">{market.maxLeverage}x</span>
               </button>
             )) : (
-              <div className="px-3 py-6 text-center text-xs text-exchange-500">No markets found</div>
+              <div className="px-3 py-6 text-center text-xs text-muted-foreground">No markets found</div>
             )}
           </div>
         </div>

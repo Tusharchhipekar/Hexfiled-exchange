@@ -37,7 +37,7 @@ export function OrderBook({ depth, isLoading, error }: { depth: Depth | null; is
 
 function BookHeader() {
   return (
-    <div className="grid shrink-0 grid-cols-3 text-[10px] uppercase tracking-[0.12em] text-exchange-500">
+    <div className="grid shrink-0 grid-cols-3 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
       <span>Price</span>
       <span className="text-right">Size</span>
       <span className="text-right">Total</span>
@@ -74,15 +74,15 @@ function SpreadRow({ bestBid, bestAsk, mid }: { bestBid: number | null; bestAsk:
   const spreadBps = spread && mid ? (spread / mid) * 10_000 : null;
 
   return (
-    <div className="my-2 grid shrink-0 grid-cols-[1fr_auto_1fr] items-center border-y border-exchange-800 py-2">
-      <span className="text-[10px] uppercase tracking-[0.12em] text-exchange-500">Spread</span>
+    <div className="my-2 grid shrink-0 grid-cols-[1fr_auto_1fr] items-center border-y border-border py-2">
+      <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Spread</span>
       <div className="text-center">
-        <p className="font-mono text-base font-semibold text-white">{mid ? formatNumber(mid) : "-"}</p>
-        <p className="mt-0.5 text-[10px] text-exchange-500">
+        <p className="font-mono text-base font-semibold text-foreground">{mid ? formatNumber(mid) : "-"}</p>
+        <p className="mt-0.5 text-[10px] text-muted-foreground">
           {spread === null ? "-" : `${formatNumber(spread)} / ${spreadBps?.toFixed(2)} bps`}
         </p>
       </div>
-      <span className="text-right text-[10px] uppercase tracking-[0.12em] text-exchange-500">Mid</span>
+      <span className="text-right text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Mid</span>
     </div>
   );
 }
@@ -99,8 +99,8 @@ function BookRow({ row, maxCumulative, maxLevelSize }: { row: BookRowData; maxCu
       <div className={`absolute inset-y-0 right-0 ${cumulativeBar}`} style={{ width: cumulativeWidth }} />
       <div className={`absolute inset-y-1 right-0 ${levelBar}`} style={{ width: levelWidth }} />
       <span className={`relative ${color}`}>{formatNumber(row.price)}</span>
-      <span className="relative text-right text-exchange-200">{formatNumber(row.size)}</span>
-      <span className="relative text-right text-exchange-400">{formatNumber(row.cumulativeNotional)}</span>
+      <span className="relative text-right text-foreground/80">{formatNumber(row.size)}</span>
+      <span className="relative text-right text-muted-foreground">{formatNumber(row.cumulativeNotional)}</span>
     </div>
   );
 }

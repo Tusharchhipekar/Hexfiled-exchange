@@ -52,7 +52,9 @@ export function OrderTicket({
     setSuccess(null);
   }
 
-  const sideClasses = side === "buy" ? "bg-emerald-400 text-exchange-950" : "bg-rose-400 text-white";
+  const sideClasses = side === "buy"
+    ? "border border-emerald-400/40 bg-emerald-400/15 text-emerald-200 hover:bg-emerald-400/25"
+    : "border border-rose-400/40 bg-rose-400/15 text-rose-200 hover:bg-rose-400/25";
   const parsedQty = Number(qty);
   const parsedLimitPrice = Number(price);
   const pricePlaceholderValue = getReferencePrice(markPrice, ticker);
@@ -133,14 +135,14 @@ export function OrderTicket({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 p-3">
-      <div className="grid grid-cols-2 gap-1 rounded-md border border-exchange-800 bg-exchange-950 p-1">
+      <div className="grid grid-cols-2 gap-1 rounded-md border border-border bg-background p-1">
         <SideButton isActive={side === "buy"} side="buy" onClick={() => onSideChange("buy")} />
         <SideButton isActive={side === "sell"} side="sell" onClick={() => onSideChange("sell")} />
       </div>
       <OrderTypeControl value={orderType} onChange={setOrderType} />
-      <div className="flex items-center justify-between rounded-md border border-exchange-800 bg-exchange-950 px-3 py-2">
-        <span className="text-xs text-exchange-400">Available equity</span>
-        <span className="font-mono text-sm font-semibold text-white">
+      <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+        <span className="text-xs text-muted-foreground">Available equity</span>
+        <span className="font-mono text-sm font-semibold text-foreground">
           {balance ? `$${formatNumber(balance.available)}` : token ? "..." : "-"}
         </span>
       </div>
@@ -161,16 +163,16 @@ export function OrderTicket({
       )}
       <TicketInput label="Quantity" value={qty} onChange={setQty} placeholder={String(market.minQty)} />
       <LeverageControl value={leverage} max={market.maxLeverage} onChange={setLeverage} />
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-exchange-800 bg-exchange-800">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border">
         <Metric label="Order value" value={estimatedNotional === null ? "-" : `$${formatNumber(estimatedNotional)}`} />
         <Metric label="Margin req." value={estimatedMargin === null ? "-" : `$${formatNumber(estimatedMargin)}`} />
       </div>
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-exchange-800 bg-exchange-800">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border">
         <Metric label="Est. price" value={referencePrice ? formatNumber(referencePrice) : "-"} />
         <Metric label="Leverage" value={`${leverage}x`} />
       </div>
       {!hasEnoughBalance ? <div className="rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">Available balance is below estimated margin.</div> : null}
-      {error ? <div className="rounded-md border border-rose-400/30 bg-rose-400/10 px-3 py-2 text-xs text-rose-200">{error}</div> : null}
+      {error ? <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive-foreground">{error}</div> : null}
       {success ? <div className="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-200">{success}</div> : null}
       <button type="submit" disabled={isSubmitting || !hasEnoughBalance} className={`h-11 w-full rounded-md text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${sideClasses}`}>
         {isSubmitting ? "Submitting..." : `${sideLabel} ${baseSymbol}`}
@@ -189,14 +191,16 @@ function SideButton({
   onClick: () => void;
 }) {
   const isBuy = side === "buy";
-  const activeClass = isBuy ? "bg-emerald-400 text-exchange-950" : "bg-rose-400 text-white";
+  const activeClass = isBuy
+    ? "border border-emerald-400/40 bg-emerald-400/15 text-emerald-200"
+    : "border border-rose-400/40 bg-rose-400/15 text-rose-200";
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={`h-11 rounded text-sm font-semibold transition-colors ${
-        isActive ? activeClass : "bg-exchange-800 text-exchange-400 hover:bg-exchange-700 hover:text-white"
+        isActive ? activeClass : "border border-transparent bg-border text-muted-foreground hover:bg-border/70 hover:text-foreground"
       }`}
     >
       {isBuy ? "Buy / Long" : "Sell / Short"}
@@ -218,7 +222,7 @@ function PriceInput({
   return (
     <label className="block">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-exchange-500">Price</span>
+        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Price</span>
         <div className="flex items-center gap-2">
           {quickPrices.map((item) => (
             <button
@@ -226,7 +230,7 @@ function PriceInput({
               type="button"
               disabled={item.value === null}
               onClick={() => item.value !== null && onChange(String(Math.round(item.value)))}
-              className="rounded px-1 font-mono text-[10px] text-cyan-300 hover:bg-exchange-800 hover:text-white disabled:cursor-not-allowed disabled:bg-transparent disabled:text-exchange-700"
+              className="rounded px-1 font-mono text-[10px] text-primary hover:bg-border hover:text-foreground disabled:cursor-not-allowed disabled:bg-transparent disabled:text-muted-foreground/50"
             >
               {item.label}
             </button>
@@ -238,7 +242,7 @@ function PriceInput({
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="h-11 w-full rounded-md border border-exchange-800 bg-exchange-950 px-3 font-mono text-sm text-white outline-none placeholder:text-exchange-600 focus:border-cyan-300"
+        className="h-11 w-full rounded-md border border-border bg-background px-3 font-mono text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring"
       />
     </label>
   );
@@ -258,8 +262,8 @@ function OrderTypeControl({
 
   return (
     <div>
-      <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-exchange-500">Type</span>
-      <div className="grid grid-cols-2 gap-1 rounded-md border border-exchange-800 bg-exchange-950 p-1">
+      <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Type</span>
+      <div className="grid grid-cols-2 gap-1 rounded-md border border-border bg-background p-1">
         {options.map((option) => (
           <button
             key={option.id}
@@ -267,8 +271,8 @@ function OrderTypeControl({
             onClick={() => onChange(option.id)}
             className={`h-8 rounded text-xs font-semibold ${
               value === option.id
-                ? "bg-cyan-300 text-exchange-950"
-                : "text-exchange-400 hover:bg-exchange-800 hover:text-exchange-100"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-border hover:text-foreground"
             }`}
           >
             {option.label}
@@ -292,13 +296,13 @@ function TicketInput({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-exchange-500">{label}</span>
+      <span className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{label}</span>
       <input
         inputMode="numeric"
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="h-11 w-full rounded-md border border-exchange-800 bg-exchange-950 px-3 font-mono text-sm text-white outline-none focus:border-cyan-300"
+        className="h-11 w-full rounded-md border border-border bg-background px-3 font-mono text-sm text-foreground outline-none focus:border-ring"
       />
     </label>
   );
@@ -314,10 +318,10 @@ function LeverageControl({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="rounded-md border border-exchange-800 p-2.5">
+    <div className="rounded-md border border-border p-2.5">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-exchange-500">Leverage</span>
-        <span className="font-mono text-sm font-semibold text-white">{value}x</span>
+        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Leverage</span>
+        <span className="font-mono text-sm font-semibold text-foreground">{value}x</span>
       </div>
       <input
         type="range"
@@ -328,7 +332,7 @@ function LeverageControl({
         onChange={(event) => onChange(Number(event.target.value))}
         className="exchange-slider w-full"
       />
-      <div className="mt-2 flex justify-between font-mono text-[10px] text-exchange-500">
+      <div className="mt-2 flex justify-between font-mono text-[10px] text-muted-foreground">
         <span>1x</span>
         <span>{max}x</span>
       </div>
@@ -346,10 +350,10 @@ function SlippageControl({
   const customValue = String(value);
 
   return (
-    <div className="rounded-md border border-exchange-800 p-2.5">
+    <div className="rounded-md border border-border p-2.5">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-exchange-500">Max slippage</span>
-        <span className="font-mono text-sm font-semibold text-white">{formatPercent(value)}</span>
+        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Max slippage</span>
+        <span className="font-mono text-sm font-semibold text-foreground">{formatPercent(value)}</span>
       </div>
       <div className="grid grid-cols-5 gap-1">
         {slippagePresetPercents.map((preset) => (
@@ -359,8 +363,8 @@ function SlippageControl({
             onClick={() => onChange(preset)}
             className={`h-8 rounded font-mono text-[11px] ${
               value === preset
-                ? "bg-cyan-300 text-exchange-950"
-                : "bg-exchange-800 text-exchange-300 hover:text-white"
+                ? "bg-primary text-primary-foreground"
+                : "bg-border text-muted-foreground hover:text-foreground"
             }`}
           >
             {formatPercent(preset)}
@@ -368,12 +372,12 @@ function SlippageControl({
         ))}
       </div>
       <label className="mt-2 block">
-        <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-exchange-500">Custom %</span>
+        <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Custom %</span>
         <input
           inputMode="decimal"
           value={customValue}
           onChange={(event) => onChange(clampPercentInput(event.target.value))}
-          className="h-11 w-full rounded-md border border-exchange-800 bg-exchange-950 px-3 font-mono text-sm text-white outline-none focus:border-cyan-300"
+          className="h-11 w-full rounded-md border border-border bg-background px-3 font-mono text-sm text-foreground outline-none focus:border-ring"
         />
       </label>
     </div>
