@@ -1,3 +1,4 @@
+import express from "express";
 import { getRedisClient } from "@repo/redis";
 import { handleCommand } from "./controller/engine.controller";
 import {
@@ -6,6 +7,17 @@ import {
   type RedisResponseType,
 } from "@repo/types";
 import { loadSnapshot, saveSnapshot } from "./helper/snapShot";
+import morgan from "morgan";
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.get("/", (req, res) => {
+  res.send({
+    message: "http-backend live",
+  });
+});
 
 const readClient = getRedisClient();
 const writeClient = getRedisClient();
@@ -137,4 +149,8 @@ function scheduleFundingRate(writeRedis: RedisClient) {
 startUp().catch((err) => {
   console.error("Engine crashed:", err);
   process.exit(1);
+});
+
+app.listen(4000, () => {
+  console.log("Trading engine running on port 4000");
 });

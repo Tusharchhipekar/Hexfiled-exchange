@@ -2,6 +2,19 @@ import { getRedisClient } from "@repo/redis";
 import { REDIS_KEYS } from "@repo/types";
 import type { RedisResponseType } from "@repo/types";
 import { updateDb } from "./updateDb";
+import express from "express";
+import morgan from "morgan";
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.get("/", (req, res) => {
+  res.send({
+    message: "db-poller live",
+  });
+});
+
 const readRedis = getRedisClient();
 
 const DB_EVENTS = new Set(["create_order", "cancel_order"]);
@@ -60,3 +73,7 @@ async function dbPuller() {
 }
 
 dbPuller().catch(() => process.exit(1));
+
+app.listen(6000, () => {
+  console.log("DB-poller running on port 6000");
+});

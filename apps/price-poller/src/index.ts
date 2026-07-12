@@ -3,6 +3,18 @@ import { loopback } from "./loopBack";
 import { newMarket } from "./helper/newMarket";
 import { getRedisClient } from "@repo/redis";
 import { REDIS_KEYS } from "@repo/types";
+import express from "express";
+import morgan from "morgan";
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.get("/", (req, res) => {
+  res.send({
+    message: "price-poller live",
+  });
+});
 
 const readRedis = getRedisClient();
 const writeRedis = getRedisClient();
@@ -66,3 +78,7 @@ async function watchNewMarkets() {
     }
   }
 }
+
+app.listen(5000, () => {
+  console.log("Price-poller running on port 5000");
+});

@@ -1,5 +1,5 @@
 {
-  "name": "http-backend",
+  "name": "@repo/http-backend",
   "type": "module",
   "private": true,
   "devDependencies": {

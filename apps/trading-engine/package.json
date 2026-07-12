@@ -16,13 +16,15 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@repo/types": "workspace:*",
-    "@repo/redis": "workspace:*",
     "@repo/db-prisma": "workspace:*",
+    "@repo/redis": "workspace:*",
     "@repo/timescaledb": "workspace:*",
+    "@repo/types": "workspace:*",
     "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
     "sorted-btree": "^2.1.0",
     "zod": "^4.4.3"
   }
