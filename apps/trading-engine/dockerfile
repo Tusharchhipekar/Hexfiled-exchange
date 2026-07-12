@@ -1,0 +1,13 @@
+FROM oven/bun:1
+
+WORKDIR /app
+
+COPY . .
+
+RUN bun install --frozen-lockfile
+RUN cd packages/db-prisma && bunx prisma generate
+
+EXPOSE 4000
+
+CMD [ "bun", "apps/trading-engine/src/index.ts" ]
+

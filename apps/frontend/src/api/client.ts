@@ -13,7 +13,7 @@ import type {
   UserOrder,
 } from "./types";
 
-const BASE_URL = "/api/v1";
+const API_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
 
 type RequestOptions = {
   token?: string | null;
@@ -42,7 +42,7 @@ async function request<T>(
   if (options.token) headers.authorization = `Bearer ${options.token}`;
   if (options.adminToken) headers.token = options.adminToken;
 
-  const response = await fetch(`${BASE_URL}/${path}`, {
+  const response = await fetch(`${API_URL}/${path}`, {
     method: options.method ?? "GET",
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
