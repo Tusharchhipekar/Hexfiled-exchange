@@ -23,5 +23,6 @@
         "timescaledb",
         "tradingengine",
         "Vercel"
-    ]
+    ],
+    "css.lint.unknownAtRules": "ignore"
 }
