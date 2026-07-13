@@ -14,6 +14,16 @@ spec:
       labels:
         app: http
     spec:
+      initContainers:
+      - image: http-backend:latest
+        name: db-migrate
+        command: ["sh", "-c", "cd /app/packages/db-prisma && bunx prisma migrate deploy --config=/app/packages/db-prisma/prisma.config.ts"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: DATABASE_URL
       containers:
       - image: http-backend:latest
         name: http-backend
