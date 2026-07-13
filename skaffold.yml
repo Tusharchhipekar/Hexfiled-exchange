@@ -83,3 +83,8 @@ portForward:
     resourceName: frontend
     port: 80
     localPort: 5173
+  - resourceType: service
+    resourceName: ws-backend
+    namespace: default
+    port: 80
+    localPort: 8080  

@@ -14,6 +14,16 @@ spec:
       labels:
         app: trading
     spec:
+      initContainers:
+      - image: trading-engine:latest
+        name: db-migrate
+        command: ["sh", "-c", "cd /app/packages/db-prisma && bunx prisma migrate deploy --config=/app/packages/db-prisma/prisma.config.ts"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: DATABASE_URL 
       containers:
       - image: trading-engine:latest
         name: trading-engine

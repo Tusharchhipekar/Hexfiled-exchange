@@ -14,6 +14,16 @@ spec:
       labels:
         app: price-poller
     spec:
+      initContainers:
+       - image: price-poller:latest
+         name: db-migrate
+         command: ["sh", "-c", "cd /app/packages/db-prisma && bunx prisma migrate deploy --config=/app/packages/db-prisma/prisma.config.ts"]
+         env:
+         - name: DATABASE_URL
+           valueFrom:
+            secretKeyRef:
+              name: database
+              key: DATABASE_URL   
       containers:
       - image: price-poller:latest
         name: price-poller
