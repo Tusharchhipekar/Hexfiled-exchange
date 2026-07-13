@@ -1,4 +1,4 @@
-apiVersion: "skaffold/v4"
+apiVersion: "skaffold/v4beta13"
 kind: Config
 
 
@@ -10,44 +10,52 @@ build:
   artifacts:
     - 
       image: http-backend
-      context: ./apps/http-backend
+      context: .
       docker:
-        dockerfile: dockerfile
+        dockerfile: apps/http-backend/dockerfile
       sync:
        infer:
-        - "src/**"
+        - "apps/http-backend/src/**"
 
     - image: trading-engine
-      context: ./apps/trading-engine
+      context: .
       docker:
-        dockerfile: dockerfile
+        dockerfile: apps/trading-engine/dockerfile
       sync:
        infer:
-        - "src/**"  
+        - "apps/trading-engine/src/**"
 
     - image: price-poller
-      context: ./apps/price-poller
+      context: .
       docker:
-        dockerfile: dockerfile
+        dockerfile: apps/price-poller/dockerfile
       sync:
        infer:
-        - "src/**" 
+        - "apps/price-poller/src/**"
 
     - image: ws-backend
-      context: ./apps/ws-backend
+      context: .
       docker:
-        dockerfile: dockerfile
+        dockerfile: apps/ws-backend/dockerfile
       sync:
        infer:
-        - "src/**"      
-        
+        - "apps/ws-backend/src/**"
+
     - image: db-poller
-      context: ./apps/db-poller
+      context: .
       docker:
-        dockerfile: dockerfile
+        dockerfile: apps/db-poller/dockerfile
       sync:
        infer:
-        - "src/**" 
+        - "apps/db-poller/src/**"
+
+    - image: frontend
+      context: .
+      docker:
+        dockerfile: apps/frontend/dockerfile
+      sync:
+       infer:
+        - "apps/frontend/src/**"
 
 manifests:
   rawYaml:
@@ -67,5 +75,8 @@ manifests:
 
     - k8s/db-poller-deployment.yml
     - k8s/db-poller-service.yml
+
+    - k8s/frontend-deployment.yml
+    - k8s/frontend-service.yml
 
     - k8s/ingress.yml
