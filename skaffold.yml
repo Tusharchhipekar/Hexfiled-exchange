@@ -1,15 +1,12 @@
 apiVersion: "skaffold/v4beta13"
 kind: Config
 
-
 build:
-  
   tagPolicy:
     sha256: {}
 
   artifacts:
-    - 
-      image: http-backend
+    - image: http-backend
       context: .
       docker:
         dockerfile: apps/http-backend/dockerfile
@@ -80,3 +77,9 @@ manifests:
     - k8s/frontend-service.yml
 
     - k8s/ingress.yml
+
+portForward:
+  - resourceType: service
+    resourceName: frontend
+    port: 80
+    localPort: 5173

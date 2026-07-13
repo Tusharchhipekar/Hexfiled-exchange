@@ -17,6 +17,15 @@ spec:
     - http:
         paths:
           - pathType: Prefix
+            path: "/ws" 
+            backend:
+              service:
+                name: ws-backend
+                port:
+                  number: 80
+    - http:
+        paths:
+          - pathType: Prefix
             path: "/"
             backend:
               service:

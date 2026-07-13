@@ -9,9 +9,7 @@ type SocketMessage<T> = {
 
 const WS_URL =
   import.meta.env.VITE_WS_URL ??
-  (import.meta.env.DEV
-    ? "ws://localhost:8080"
-    : `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws`);
+  `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws`;
 
 type SubscribeOptions = {
   token?: string;

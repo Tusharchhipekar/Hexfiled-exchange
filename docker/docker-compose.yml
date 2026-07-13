@@ -1,8 +1,6 @@
-version: "3.8"
-
 services:
   db:
-    image: postgres:16-alpine
+    image: timescale/timescaledb:latest-pg16
     container_name: exchanges_db
     restart: always
     environment:
@@ -18,7 +16,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      
 
   redis:
     image: redis:8.8.0-alpine
@@ -33,7 +31,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      
 
 volumes:
   postgres_data:
