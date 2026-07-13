@@ -26,7 +26,8 @@
         "solusdt",
         "timescaledb",
         "tradingengine",
-        "Vercel"
+        "Vercel",
+        "VITE"
     ],
     "css.lint.unknownAtRules": "ignore"
 }

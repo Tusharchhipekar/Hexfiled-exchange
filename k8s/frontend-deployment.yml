@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - image: frontend:latest
+        name: frontend
+        resources:
+          limits:
+            cpu: "250m"
+            memory: "250Mi"
+          requests:
+            cpu: "100m"
+            memory: "100Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 20
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 10
+        env:
+        - name: VITE_WS_URL
+          valueFrom:
+            secretKeyRef:
+              name: frontend
+              key: VITE_WS_URL
+        - name: VITE_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: frontend
+              key: VITE_API_URL
+        ports:
+        - containerPort: 80
+          name: frontend
