@@ -9,10 +9,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-app.get("/", (req, res) => {
-  res.send({
-    message: "ws-backend live",
-  });
+
+app.get("/api/status/healthz", (req, res) => {
+  res.status(200).json({ status: "ok", service: "ws-backend" });
+});
+
+app.get("/api/status/readyz", (req, res) => {
+  res.status(200).json({ status: "ready", service: "ws-backend" });
 });
 
 app.listen(Config.WSS_PORT, () => {

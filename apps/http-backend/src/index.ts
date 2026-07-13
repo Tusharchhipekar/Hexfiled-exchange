@@ -19,10 +19,12 @@ app.use(
   }),
 );
 
-app.get("/", (req, res) => {
-  res.send({
-    message: "http-backend live",
-  });
+app.get("/api/status/healthz", (req, res) => {
+  res.status(200).json({ status: "ok", service: "http-backend" });
+});
+
+app.get("/api/status/readyz", (req, res) => {
+  res.status(200).json({ status: "ready", service: "http-backend" });
 });
 
 app.use("/api/v1/auth", authRoutes);

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: price-poller
+spec:
+  type: ClusterIP
+  selector:
+    app: price-poller
+  ports:
+  - name: price-poller
+    port: 80
+    targetPort: 5000
+ 

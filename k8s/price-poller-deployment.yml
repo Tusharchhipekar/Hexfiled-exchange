@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: price-poller-deployment
+  labels:
+    name: price-poller-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: price-poller
+  template:
+    metadata:
+      labels:
+        app: price-poller
+    spec:
+      containers:
+      - image: price-poller:latest
+        name: price-poller
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "500Mi"
+          requests:
+            cpu: "250m"
+            memory: "250Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/status/healthz
+            port: 5000
+          initialDelaySeconds: 90
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/status/readyz
+            port: 5000
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: REDIS_URL
+        - name: PRICE_FEEDER_REST_FALLBACK
+          valueFrom:
+            secretKeyRef:
+              name: feeder
+              key: PRICE_FEEDER_REST_FALLBACK
+        ports:
+        - containerPort: 5000
+          name: price-poller

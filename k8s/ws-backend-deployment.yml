@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ws-deployment
+  labels:
+    name: ws-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ws
+  template:
+    metadata:
+      labels:
+        app: ws
+    spec:
+      containers:
+      - image: ws-backend:latest
+        name: ws-backend
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "500Mi"
+          requests:
+            cpu: "250m"
+            memory: "250Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/status/healthz
+            port: 8080
+          initialDelaySeconds: 90
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/status/readyz
+            port: 8080
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: REDIS_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: JWT_SECRET
+        - name: WSS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: port
+              key: WSS_PORT
+        ports:
+        - containerPort: 8080
+          name: ws

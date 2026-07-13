@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-poller
+spec:
+  type: ClusterIP
+  selector:
+    app: db-poller
+  ports:
+  - name: db-poller
+    port: 80
+    targetPort: 6000
+ 

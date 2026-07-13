@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trading-engine-deployment
+  labels:
+    name: trading-engine-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trading
+  template:
+    metadata:
+      labels:
+        app: trading
+    spec:
+      containers:
+      - image: trading-engine:latest
+        name: trading-engine
+        resources:  
+          limits:
+            cpu: "500m"
+            memory: "500Mi"
+          requests:
+            cpu: "250m"
+            memory: "250Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/status/healthz
+            port: 4000
+          initialDelaySeconds: 90
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/status/readyz
+            port: 4000
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: database
+              key: REDIS_URL
+        ports:
+        - containerPort: 4000
+          name: trading-engine

@@ -10,10 +10,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-app.get("/", (req, res) => {
-  res.send({
-    message: "price-poller live",
-  });
+
+app.get("/api/status/healthz", (req, res) => {
+  res.status(200).json({ status: "ok", service: "price-poller" });
+});
+
+app.get("/api/status/readyz", (req, res) => {
+  res.status(200).json({ status: "ready", service: "price-poller" });
 });
 
 const readRedis = getRedisClient();

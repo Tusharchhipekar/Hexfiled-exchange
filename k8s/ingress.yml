@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: exchange-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-path: "/"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:5173"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, DELETE"
+  labels:
+    app.kubernetes.io/name: exchange-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: http-backend
+                port:
+                  number: 80
+   

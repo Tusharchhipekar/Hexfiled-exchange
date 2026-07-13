@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ws-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: ws
+  ports:
+  - name: ws-backend
+    port: 80
+    targetPort: 8080
+ 
