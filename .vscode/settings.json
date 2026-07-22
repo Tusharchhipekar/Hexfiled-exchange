@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
+        "acked",
         "acks",
+        "autonumber",
+        "behaviour",
         "BTCUSD",
         "btcusdt",
         "bunx",
@@ -10,6 +13,7 @@
         "hexfield",
         "Hexfiled",
         "horz",
+        "hypertable",
         "innet",
         "isready",
         "klines",
@@ -28,8 +32,14 @@
         "solusdt",
         "timescaledb",
         "tradingengine",
+        "Turborepo",
+        "typechecks",
         "Vercel",
-        "VITE"
+        "VITE",
+        "XACK",
+        "XADD",
+        "XREAD",
+        "XREADGROUP"
     ],
     "css.lint.unknownAtRules": "ignore"
 }
