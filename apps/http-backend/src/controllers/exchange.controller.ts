@@ -29,6 +29,7 @@ export const addBalance = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
+      response,
     });
   } catch (error) {
     return res.status(400).json({ error: "Error while adding balance" });

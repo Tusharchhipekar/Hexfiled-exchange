@@ -1,11 +1,13 @@
 import type { CreateMarketPayload } from "@repo/types";
 import { MARKETS, ORDERBOOKS, MARKET_UPDATE_IDS } from "../engine-store";
 import BTree from "sorted-btree";
+import { RejectionError } from "../errors";
 
 export function createMarket(payload: CreateMarketPayload) {
   const { marketId, symbol, maxLeverage, minQty } = payload;
   let existingMarket = MARKETS.get(symbol);
-  if (existingMarket) throw new Error(`market ${symbol} already exists`);
+  if (existingMarket)
+    throw new RejectionError(`market ${symbol} already exists`);
   MARKET_UPDATE_IDS.set(symbol, 0);
   MARKETS.set(symbol, {
     marketId,

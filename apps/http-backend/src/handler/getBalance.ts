@@ -7,7 +7,7 @@ export async function getBalance(req: Request, res: Response) {
     const response = await loopback("get_balance", {
       userId,
     });
-    res.status(200).json(response);
+    res.status(200).json({ response });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

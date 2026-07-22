@@ -1,10 +1,11 @@
 import type { GetDepthPayload } from "@repo/types";
 import { ORDERBOOKS } from "../engine-store";
+import { RejectionError } from "../errors";
 
 export function getDepth(payload: GetDepthPayload) {
   const { symbol } = payload;
   const orderbook = ORDERBOOKS.get(symbol);
-  if (!orderbook) throw new Error(`market ${symbol} doesn't exist`);
+  if (!orderbook) throw new RejectionError(`market ${symbol} doesn't exist`);
   //asks stop at 20
   let asks: [number, number][] = [];
   orderbook.asks.forEachPair((askPrice, restingOrders) => {

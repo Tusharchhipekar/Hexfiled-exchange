@@ -2,18 +2,19 @@ import type { cancelOrderPayload } from "@repo/types";
 import { ORDERBOOKS, ORDERS } from "../engine-store";
 import { fetchBalance } from "../helper/fetchBalance";
 import { getDepthDiff } from "../helper/getDepthDiff";
+import { RejectionError } from "../errors";
 
 export function cancelOrder(payload: cancelOrderPayload) {
   const { orderId, userId } = payload;
   const order = ORDERS.get(orderId);
-  //check order exist
-  if (!order) throw new Error("Order doesn't exist");
-  //check if user is authorized
-  if (order.userId !== userId) throw new Error("Unauthorized request");
-  //check if order is cancellable
+
+  if (!order) throw new RejectionError("Order doesn't exist");
+
+  if (order.userId !== userId) throw new RejectionError("Unauthorized request");
+
   if (order.status === "filled" || order.status === "cancelled")
-    throw new Error(`Order status ${order.status} can't be cancelled`);
-  //resting order find and remove
+    throw new RejectionError(`Order status ${order.status} can't be cancelled`);
+
   const orderbook = ORDERBOOKS.get(order.symbol);
   if (!orderbook) throw new Error(`market ${order.symbol} doesn't exist`);
   let tree = order.side === "buy" ? orderbook.bids : orderbook.asks;
@@ -25,7 +26,6 @@ export function cancelOrder(payload: cancelOrderPayload) {
   if (remaining.length === 0) tree.delete(order.price);
   else tree.set(order.price, remaining);
 
-  //refund locked amount to available
   const remainingQty = order.qty - order.filledQty;
   const usdBalance = fetchBalance(userId, "USD");
   const refund = Math.floor(
@@ -36,7 +36,6 @@ export function cancelOrder(payload: cancelOrderPayload) {
   usdBalance.locked -= refund;
   usdBalance.available += refund;
 
-  //order status update
   order.status = "cancelled";
 
   const depthDiff = getDepthDiff(

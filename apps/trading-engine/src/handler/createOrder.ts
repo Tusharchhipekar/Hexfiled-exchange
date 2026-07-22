@@ -8,38 +8,41 @@ import { fetchBalance } from "../helper/fetchBalance";
 import { matchOrder } from "../helper/matchOrder";
 import { updatePosition } from "../helper/updatePostion";
 import { getDepthDiff } from "../helper/getDepthDiff";
+import { RejectionError } from "../errors";
 
 export function createOrder(payload: createOrderPayload) {
   const { userId, symbol, side, orderType, leverage, qty } = payload;
 
   let orderbook = ORDERBOOKS.get(symbol);
-  if (!orderbook) throw new Error(`market ${symbol} doesn't exist`);
+  if (!orderbook) throw new RejectionError(`market ${symbol} doesn't exist`);
   // correct — only check what we need
   if (orderType === "market") {
     if (side === "buy" && orderbook.asks.size === 0)
-      throw new Error("no liquidity on asks");
+      throw new RejectionError("no liquidity on asks");
     if (side === "sell" && orderbook.bids.size === 0)
-      throw new Error("no liquidity on bids");
+      throw new RejectionError("no liquidity on bids");
   }
+
   const limitPrice =
     orderType === "limit"
       ? payload.price
       : side === "buy"
         ? Math.floor(
-            orderbook.asks.minKey()! * ((1 + payload.slippageBps) / 10000),
+            orderbook.asks.minKey()! * (1 + payload.slippageBps / 10000),
           )
         : Math.floor(
-            orderbook.bids.maxKey()! * ((1 - payload.slippageBps) / 10000),
+            orderbook.bids.maxKey()! * (1 - payload.slippageBps / 10000),
           );
 
   //check margin for that market;
   const market = MARKETS.get(symbol);
-  if (!market) throw new Error(`market ${symbol} doesn't exist`);
+  if (!market) throw new RejectionError(`market ${symbol} doesn't exist`);
   if (leverage > market.maxLeverage)
-    throw new Error(
+    throw new RejectionError(
       `maximum leverage allowed for ${symbol} is ${market.maxLeverage}`,
     );
-  if (qty < market.minQty) throw new Error(`min qty is ${market.minQty}`);
+  if (qty < market.minQty)
+    throw new RejectionError(`min qty is ${market.minQty}`);
 
   let margin = Math.floor(
     Number((BigInt(qty) * BigInt(limitPrice)) / BigInt(leverage)),
@@ -48,8 +51,9 @@ export function createOrder(payload: createOrderPayload) {
   //check balance
 
   const usdBalance = fetchBalance(userId, "USD");
-  if (!usdBalance) throw new Error("usd Balance not found");
-  if (margin > usdBalance.available) throw new Error("Insufficient Balance");
+  if (!usdBalance) throw new RejectionError("usd Balance not found");
+  if (margin > usdBalance.available)
+    throw new RejectionError("Insufficient Balance");
 
   usdBalance.available -= margin;
   usdBalance.locked += margin;

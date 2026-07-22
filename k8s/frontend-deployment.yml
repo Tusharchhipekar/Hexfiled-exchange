@@ -47,6 +47,16 @@ spec:
             secretKeyRef:
               name: frontend
               key: VITE_API_URL
+        - name: API_PROXY_TARGET
+          valueFrom:
+            secretKeyRef:
+              name: frontend
+              key: API_PROXY_TARGET
+        - name: WS_PROXY_TARGET
+          valueFrom:
+            secretKeyRef:
+              name: frontend
+              key: WS_PROXY_TARGET
         ports:
         - containerPort: 80
           name: frontend

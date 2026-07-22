@@ -7,6 +7,7 @@ import {
   type RedisResponseType,
 } from "@repo/types";
 import { loadSnapshot, saveSnapshot } from "./helper/snapShot";
+import { RejectionError } from "./errors";
 import morgan from "morgan";
 
 const app = express();
@@ -96,7 +97,16 @@ async function startUp() {
             });
           }
         } catch (err) {
-          console.error("command failed", { type, correlationId, err });
+          if (err instanceof RejectionError) {
+            // expected: the command was rejected on its own inputs
+            console.warn("command rejected", {
+              type,
+              correlationId,
+              reason: err.message,
+            });
+          } else {
+            console.error("command failed", { type, correlationId, err });
+          }
 
           if (responseQueue) {
             await writeRedis.xAdd(responseQueue as string, "*", {
