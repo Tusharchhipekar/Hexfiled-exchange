@@ -40,22 +40,27 @@ export function adl(position: Position) {
     if (remainingQty <= 0) break;
     const fillQty = Math.min(candidate.pos.qty, remainingQty);
     remainingQty -= fillQty;
-    createOrder({
-      userId: candidate.pos.userId,
-      symbol: position.symbol,
-      side: candidate.pos.positionSide === "long" ? "sell" : "buy",
-      orderType: "market",
-      qty: fillQty,
-      leverage: Math.floor(
-        (candidate.pos.averagePrice * candidate.pos.qty) / candidate.pos.margin,
-      ),
-      slippageBps: 10000,
-    });
+    try {
+      createOrder({
+        userId: candidate.pos.userId,
+        symbol: position.symbol,
+        side: candidate.pos.positionSide === "long" ? "sell" : "buy",
+        orderType: "market",
+        qty: fillQty,
+        leverage: Math.floor(
+          (candidate.pos.averagePrice * candidate.pos.qty) /
+            candidate.pos.margin,
+        ),
+        slippageBps: 10000,
+      });
+    } catch (err) {
+      remainingQty += fillQty;
+      console.error(`ADL leg failed for ${position.symbol}`, err);
+    }
   }
   if (remainingQty > 0) {
     console.error(
       `ADL failed for ${position.symbol} — remaining qty: ${remainingQty}`,
     );
-    // V2: socialize loss across all positions
   }
 }

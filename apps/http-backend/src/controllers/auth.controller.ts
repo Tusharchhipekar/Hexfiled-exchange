@@ -53,6 +53,7 @@ export const signupController = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "user created successfully",
       success: true,
+      token,
       user: {
         id: newUser.id,
         email: newUser.email,
@@ -113,6 +114,7 @@ export const signinController = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "signed in successfully",
       success: true,
+      token,
       user: {
         id: user.id,
         email: user.email,

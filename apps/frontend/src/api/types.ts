@@ -163,5 +163,12 @@ export type UserFill = {
 };
 
 export type AuthResponse = {
+  message: string;
+  success: boolean;
   token: string;
+  user: {
+    id: string;
+    username: string;
+    email: string | null;
+  };
 };

@@ -42,7 +42,7 @@ ws.on("message", async (data) => {
   await client.xAdd(REDIS_KEYS.engineCommands, "*", {
     type: "update_index_price",
     correlationId: crypto.randomUUID(),
-    ResponseQueue: "",
+    responseQueue: "",
     payload: JSON.stringify({ symbol, price }),
   });
 

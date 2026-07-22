@@ -16,11 +16,11 @@ export function AuthPage({ mode, onAuth }: { mode: "signin" | "signup"; onAuth: 
     const formData = new FormData(event.currentTarget);
     const username = String(formData.get("username") ?? "");
     const password = String(formData.get("password") ?? "");
-    const name = String(formData.get("name") ?? "");
+    const email = String(formData.get("email") ?? "").trim();
 
     try {
       const response = isSignup
-        ? await api.signup({ name, username, password })
+        ? await api.signup({ username, password, email: email || undefined })
         : await api.signin({ username, password });
       onAuth(response.token);
     } catch (error) {
@@ -72,7 +72,7 @@ export function AuthPage({ mode, onAuth }: { mode: "signin" | "signup"; onAuth: 
               </button>
             </div>
 
-            {isSignup ? <Field label="Name" name="name" autoComplete="name" /> : null}
+            {isSignup ? <Field label="Email" name="email" type="email" autoComplete="email" /> : null}
             <Field label="Username" name="username" autoComplete="username" />
             <Field label="Password" name="password" type="password" autoComplete={isSignup ? "new-password" : "current-password"} />
 

@@ -13,7 +13,7 @@ import type {
   UserOrder,
 } from "./types";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
+const API_URL = (import.meta.env.VITE_API_URL || "/api/v1").replace(/\/+$/, "");
 
 type RequestOptions = {
   token?: string | null;
@@ -45,6 +45,7 @@ async function request<T>(
   const response = await fetch(`${API_URL}/${path}`, {
     method: options.method ?? "GET",
     headers,
+    credentials: "include",
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   });
 
@@ -68,10 +69,10 @@ export const api = {
       body: payload,
     });
   },
-  signup(payload: { name?: string; username: string; password: string }) {
+  signup(payload: { username: string; password: string; email?: string }) {
     return request<AuthResponse>("auth/signup", {
       method: "POST",
-      body: payload,
+      body: payload.email ? payload : { username: payload.username, password: payload.password },
     });
   },
   getMarkets() {

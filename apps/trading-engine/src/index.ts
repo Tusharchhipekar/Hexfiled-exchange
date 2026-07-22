@@ -96,13 +96,17 @@ async function startUp() {
             });
           }
         } catch (err) {
-          await writeRedis.xAdd(responseQueue as string, "*", {
-            type: type as string,
-            correlationId: correlationId as string,
-            ok: "false",
-            error: (err as Error).message,
-            data: "",
-          });
+          console.error("command failed", { type, correlationId, err });
+
+          if (responseQueue) {
+            await writeRedis.xAdd(responseQueue as string, "*", {
+              type: type as string,
+              correlationId: correlationId as string,
+              ok: "false",
+              error: (err as Error).message,
+              data: "",
+            });
+          }
         }
       }
     }
