@@ -33,42 +33,162 @@ The engine is the single source of truth for orderbooks, balances, and positions
 
 ## Request & response flow
 
-### Placing an order (command → response)
+### Placing an order — a synchronous reply over an async stream
 
-1. **`POST /api/v1/exchange/order`** — `authMiddleware` verifies the JWT cookie and sets `req.userId`; the body is parsed with `CreateOrderApiRequestSchema` (a discriminated union on `orderType`, so a market order requires `slippageBps` and a limit order requires `price`).
-2. **`loopback("create_order", payload)`** mints a `correlationId`, registers a pending promise with a **10 s timeout**, and `XADD`s to `to_engine`:
-   ```
-   { type, correlationId, responseQueue: "Backend-<uuid>", payload }
-   ```
-   Each http-backend process generates its own `responseQueue` at boot, so replicas never steal each other's replies.
-3. **The engine** blocks on `XREAD to_engine`, dispatches through `handleCommand`, and mutates its in-memory maps (`ORDERBOOKS`, `ORDERS`, `POSITIONS`, `BALANCES`) — matching, margin locking, and position updates all happen synchronously in one loop, so there are no races.
-4. **The engine replies** on one of two paths:
-   - `create_order` / `cancel_order` / `create_market` are **global events** → `XADD from_engine` (every consumer sees them).
-   - Everything else (`add_balance`, `get_balance`, `get_depth`, `get_markets`) → `XADD <responseQueue>` (point-to-point).
-   - `update_index_price` returns nothing and is never published.
-5. **The loopback listener** does a single blocking `XREAD` over *both* `from_engine` and its own `Backend-<uuid>` queue, matches `correlationId` against the pending map, then resolves with `data` or rejects with `error` (`ok === "true"` decides). Unmatched correlation IDs are ignored — that's how a replica skips another replica's traffic.
-6. **The controller** returns the resolved engine payload as JSON. A timeout or an engine rejection surfaces as a 4xx.
+The HTTP layer never calls the engine directly. `services/loopback.ts` mints a `correlationId`, parks a promise in a `Map` behind a **10 s timeout**, and writes the command to the `to_engine` stream. Each http-backend process generates its own `Backend-{uuid}` response queue at boot, so replicas never resolve each other's requests.
 
-### Failure handling
+```mermaid
+sequenceDiagram
+    autonumber
+    participant UI as Frontend
+    participant API as Express + authMiddleware
+    participant LB as loopback()
+    participant RS as Redis Streams
+    participant ENG as trading-engine
 
-Errors inside `handleCommand` are caught in the engine loop. A `RejectionError` (insufficient margin, unknown market, bad order) is logged as a warning; anything else is logged as an error. Either way, if the command carried a `responseQueue`, a message with `ok: "false"` and the error string is written back so the caller fails fast instead of waiting out the 10 s timeout. Commands with no response queue (index prices, funding) are fire-and-forget.
+    UI->>API: POST /api/v1/exchange/order
+    API->>API: verify JWT cookie → req.userId<br/>Zod: CreateOrderApiRequestSchema
+    API->>LB: loopback("create_order", payload)
+    LB->>LB: correlationId = uuid()<br/>pending.set(id, {resolve, reject, 10s timeout})
+    LB->>RS: XADD to_engine { type, correlationId,<br/>responseQueue: "Backend-{uuid}", payload }
 
-### Fan-out (event → browser)
+    ENG->>RS: XREAD to_engine (BLOCK 0, COUNT 1)
+    RS-->>ENG: command
+    ENG->>ENG: handleCommand → match, lock margin,<br/>update ORDERBOOKS / POSITIONS / BALANCES
 
-A single `create_order` event on `from_engine` is consumed independently by two consumer groups:
+    alt global event (create_order, cancel_order, create_market)
+        ENG->>RS: XADD from_engine { ok: "true", data }
+    else scoped reply (add_balance, get_balance, get_depth, get_markets)
+        ENG->>RS: XADD Backend-{uuid} { ok: "true", data }
+    else rejected (RejectionError, unknown market, no margin)
+        ENG->>RS: XADD responseQueue { ok: "false", error }
+    end
 
-- **ws-backend** (`GROUP wss`, one consumer per process) translates `CreateOrderResponse` into pub/sub publishes — `market:<symbol>:depth` from `depthDiff`, one `market:<symbol>:trade` per fill (side flipped to the taker's), `user:<id>:fills` to both sides of each fill, and `user:<id>:orders` for the taker plus every touched maker order. It acks after publishing, and drains stale pending entries on startup.
-- **db-poller** (`GROUP db-puller`) writes the same event to Postgres via Prisma and **only then** acks; a failed write leaves the message pending so it is redelivered after a restart. Non-`ok` or irrelevant event types are acked and skipped.
+    LB->>RS: XREAD [from_engine, Backend-{uuid}]
+    RS-->>LB: response
+    LB->>LB: pending.get(correlationId) — ignore if not mine
+    alt ok === "true"
+        LB-->>API: resolve(data)
+        API-->>UI: 200 { success, response }
+    else
+        LB-->>API: reject(error)
+        API-->>UI: 4xx
+    end
+```
 
-`publishListener` keeps one Redis subscription per channel no matter how many sockets want it; `wsServer` maps `channel → Set<WebSocket>` and drops dead sockets on send failure. `user:*` subscriptions are rejected unless the `token` in the SUBSCRIBE frame verifies against that user ID.
+`update_index_price` returns nothing and is never published. Commands with an empty `responseQueue` (index prices, funding) are fire-and-forget — nobody is waiting on them.
 
-### Prices in, state out
+### One event, two consumer groups
 
-`price-poller` holds one Binance `fstream` connection, scales each mark price to an integer, and does two things per tick: `XADD update_index_price` to the engine (which drives liquidation and ADL checks) and a direct `publish` to `market:<symbol>:markPrice` for the UI — the second path deliberately bypasses the engine so chart ticks don't queue behind order flow. It also tails `from_engine` for `create_market` to subscribe to newly listed symbols. Separately, the engine schedules a `funding_rate` command onto its own input stream at 00:00, 08:00, and 16:00 UTC.
+`create_order` lands on `from_engine` once and is read independently by ws-backend and db-poller. The browser gets its update off the pub/sub path; the durable write happens on a separate track and cannot delay it.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant ENG as trading-engine
+    participant RS as from_engine stream
+    participant WSS as ws-backend (GROUP wss)
+    participant PS as Redis pub/sub
+    participant BR as Browser socket
+    participant DBP as db-poller (GROUP db-puller)
+    participant PG as Postgres
+
+    ENG->>RS: XADD { type: "create_order", ok, data }
+
+    par ws-backend
+        WSS->>RS: XREADGROUP wss ">"
+        RS-->>WSS: CreateOrderResponse
+        alt type not in {create_order, cancel_order} or !ok
+            WSS->>RS: XACK and skip
+        else
+            WSS->>PS: publish market:{sym}:depth (depthDiff)
+            loop each fill
+                WSS->>PS: publish market:{sym}:trade (side flipped to taker)
+                WSS->>PS: publish user:{taker}:fills
+                WSS->>PS: publish user:{maker}:fills
+            end
+            WSS->>PS: publish user:{taker}:orders
+            loop each touched maker order
+                WSS->>PS: publish user:{maker}:orders
+            end
+            WSS->>RS: XACK
+        end
+        PS-->>BR: { channel, data } to every socket in the channel Set
+    and db-poller
+        DBP->>RS: XREADGROUP db-puller ">"
+        RS-->>DBP: same event
+        DBP->>PG: updateDb() via Prisma
+        alt write succeeded
+            DBP->>RS: XACK
+        else write threw
+            DBP->>DBP: no ack — redelivered on restart
+        end
+    end
+```
+
+`publishListener` keeps exactly one Redis subscription per channel regardless of socket count; `wsServer` holds `channel → Set<WebSocket>` and drops dead sockets on send failure.
+
+### Subscribing to a channel
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant BR as Browser
+    participant WS as wsServer
+    participant PL as publishListener
+    participant PS as Redis pub/sub
+
+    BR->>WS: { type: "SUBSCRIBE", channel, token? }
+    alt channel starts with "user"
+        WS->>WS: verifyUserChannel(channel, token)
+        Note over WS: throws → { type: "error" } back to the socket
+    end
+    WS->>WS: connectedSockets.get(channel).add(ws)
+    WS->>PL: subscribeToChannel(channel)
+    alt already subscribed
+        PL-->>WS: cached promise (no second SUBSCRIBE)
+    else
+        PL->>PS: SUBSCRIBE channel
+    end
+    WS-->>BR: { type: "subscribed", channel }
+    PS-->>PL: message
+    PL-->>BR: { channel, data }
+```
+
+On `close`, the socket is removed from every channel it joined and empty channel Sets are deleted.
+
+### Mark price in, liquidation out
+
+`price-poller` holds one Binance `fstream` connection and splits each tick two ways — the UI tick deliberately bypasses the engine so chart updates never queue behind order flow.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant BN as Binance fstream
+    participant PP as price-poller
+    participant RS as to_engine stream
+    participant ENG as trading-engine
+    participant PS as Redis pub/sub
+    participant BR as Browser
+
+    BN-->>PP: markPrice tick { s, i, E }
+    PP->>PP: price = floor(parseFloat(i) * 1_000_000)
+    par to the engine
+        PP->>RS: XADD update_index_price { symbol, price }
+        ENG->>ENG: INDEX_PRICES.set(symbol, price)<br/>liquidationCheck → liquidate → adl
+    and straight to the UI
+        PP->>PS: publish market:{sym}:markPrice
+        PS-->>BR: { symbol, price, time }
+    end
+
+    Note over PP,ENG: price-poller also tails from_engine for create_market<br/>and subscribes to newly listed symbols.
+
+    ENG->>RS: XADD funding_rate (self-scheduled, 00/08/16 UTC)
+```
 
 ### Recovery
 
-The engine writes a snapshot to `data/snapshots/<lastSeenId>.json` every 5 minutes. On boot it loads the newest snapshot and resumes `XREAD` from that stream ID, replaying every command since — which is what makes an in-memory book safe to restart.
+The engine writes a snapshot to `data/snapshots/` every 5 minutes, tagged with the last stream ID it consumed. On boot `loadSnapshot()` restores the maps and returns that ID, and the read loop resumes `XREAD` from there — replaying every command since, which is what makes an in-memory book safe to restart.
 
 ## Apps
 
