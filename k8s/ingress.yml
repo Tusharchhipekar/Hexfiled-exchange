@@ -14,22 +14,28 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
+    # one host-less rule: nginx merges duplicates, so separate rules drop paths
     - http:
         paths:
           - pathType: Prefix
-            path: "/ws" 
+            path: "/ws"
             backend:
               service:
                 name: ws-backend
                 port:
                   number: 80
-    - http:
-        paths:
+          - pathType: Prefix
+            path: "/api"
+            backend:
+              service:
+                name: http-backend
+                port:
+                  number: 80
           - pathType: Prefix
             path: "/"
             backend:
               service:
-                name: http-backend
+                name: frontend
                 port:
                   number: 80
    

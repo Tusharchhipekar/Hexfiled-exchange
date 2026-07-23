@@ -16,6 +16,7 @@ spec:
     spec:
       containers:
       - image: frontend:latest
+        imagePullPolicy: IfNotPresent
         name: frontend
         resources:
           limits:

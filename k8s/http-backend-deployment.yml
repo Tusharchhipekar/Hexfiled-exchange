@@ -26,6 +26,7 @@ spec:
               key: DATABASE_URL
       containers:
       - image: http-backend:latest
+        imagePullPolicy: IfNotPresent
         name: http-backend
         resources:
           limits:

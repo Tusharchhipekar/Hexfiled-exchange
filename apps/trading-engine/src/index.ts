@@ -35,8 +35,8 @@ const GLOBAL_EVENTS = new Set([
 let lastSeenId: string;
 let lastSnapshotTime = Date.now();
 
-//snapshot every 5 mins
-const SNAPSHOT_INTERVAL = 5 * 60 * 1000;
+//snapshot every 2 hours
+const SNAPSHOT_INTERVAL = 2 * 60 * 60 * 1000;
 
 //universal funding_rate times
 const FUNDING_TIMES_UTC_HOURS = [0, 8, 16] as const;

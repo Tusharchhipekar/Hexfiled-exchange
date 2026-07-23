@@ -7,6 +7,12 @@ import { verifyUserChannel } from "../helper/verifyUserChannel";
 export function attachWsServer(server: Server) {
   const wss = new WebSocketServer({ noServer: true });
 
+  server.on("upgrade", (req, socket, head) => {
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      wss.emit("connection", ws, req);
+    });
+  });
+
   wss.on("connection", (ws) => {
     ws.on("message", (data) => {
       try {
