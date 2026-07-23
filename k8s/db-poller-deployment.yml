@@ -26,6 +26,7 @@ spec:
               key: DATABASE_URL    
       containers:
       - image: db-poller:latest
+        imagePullPolicy: IfNotPresent
         name: db-poller
         resources:
           limits:

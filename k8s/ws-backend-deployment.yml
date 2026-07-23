@@ -16,6 +16,7 @@ spec:
     spec:
       containers:
       - image: ws-backend:latest
+        imagePullPolicy: IfNotPresent
         name: ws-backend
         resources:
           limits:

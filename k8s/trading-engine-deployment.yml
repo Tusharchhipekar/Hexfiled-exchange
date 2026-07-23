@@ -26,6 +26,7 @@ spec:
               key: DATABASE_URL 
       containers:
       - image: trading-engine:latest
+        imagePullPolicy: IfNotPresent
         name: trading-engine
         resources:  
           limits:

@@ -132,7 +132,7 @@ export const api = {
   cancelOrder(token: string, orderId: string) {
     return request<OrderMutationResponse>(
       `exchange/order/${encodeURIComponent(orderId)}`,
-      { method: "DELETE", token },
+      { method: "POST", token },
     );
   },
 };

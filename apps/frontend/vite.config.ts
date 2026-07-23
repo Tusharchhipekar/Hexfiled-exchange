@@ -9,13 +9,17 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss()],
     server: {
       host: "0.0.0.0",
+      // reached in-cluster by service name and through the ingress, not just localhost
+      allowedHosts: env.ALLOWED_HOSTS
+        ? env.ALLOWED_HOSTS.split(",")
+        : ["localhost", "127.0.0.1", "frontend"],
       proxy: {
         "/api": {
-          target: env.API_PROXY_TARGET ?? "http://http-backend:3000",
+          target: env.API_PROXY_TARGET ?? "http://http-backend",
           changeOrigin: true,
         },
         "/ws": {
-          target: env.WS_PROXY_TARGET ?? "ws://ws-backend:8080",
+          target: env.WS_PROXY_TARGET ?? "ws://ws-backend",
           ws: true,
           changeOrigin: true,
         },
